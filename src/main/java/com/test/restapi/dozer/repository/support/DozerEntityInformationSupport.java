@@ -1,7 +1,5 @@
 package com.test.restapi.dozer.repository.support;
 
-import javax.persistence.EntityManager;
-
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.repository.core.support.AbstractEntityInformation;
 import org.springframework.util.Assert;
@@ -25,8 +23,7 @@ public abstract class DozerEntityInformationSupport<T, ID> extends AbstractEntit
 	}
 
 	/**
-	 * Creates a {@link DozerEntityInformation} for the given domain class and
-	 * {@link EntityManager}.
+	 * Creates a {@link DozerEntityInformation} for the given domain class.
 	 *
 	 * @param domainClass must not be {@literal null}.
 	 * @return
@@ -44,7 +41,7 @@ public abstract class DozerEntityInformationSupport<T, ID> extends AbstractEntit
 	}
 
 	@Override
-	public Class<?> getTargetEntityClass() {
-		return metadata.getTargetEntityClass();
+	public Class<?> getAdaptedJavaType() {
+		return metadata.getAdaptedJavaType();
 	}
 }

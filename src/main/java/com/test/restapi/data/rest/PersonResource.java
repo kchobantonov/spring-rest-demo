@@ -7,7 +7,7 @@ import com.test.restapi.dozer.annotation.DozerEntity;
 
 import lombok.Data;
 
-@DozerEntity(domainClass = Person.class)
+@DozerEntity(adaptedDomainClass = Person.class)
 @Data
 public class PersonResource {
 	

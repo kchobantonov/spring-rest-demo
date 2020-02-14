@@ -4,5 +4,10 @@ import org.springframework.data.repository.core.EntityMetadata;
 
 public interface DozerEntityMetadata<T> extends EntityMetadata<T> {
 	
-	Class<?> getTargetEntityClass();
+	/**
+	 * Returns the actual target domain class type.
+	 *
+	 * @return
+	 */
+	Class<?> getAdaptedJavaType();
 }

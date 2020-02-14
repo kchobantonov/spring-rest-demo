@@ -30,8 +30,8 @@ public class DefaultDozerEntityMetadata<T> implements DozerEntityMetadata<T> {
 
 
 	@Override
-	public Class<?> getTargetEntityClass() {
+	public Class<?> getAdaptedJavaType() {
 		DozerEntity entity = AnnotatedElementUtils.findMergedAnnotation(domainType, DozerEntity.class);
-		return entity.domainClass();
+		return entity.adaptedDomainClass();
 	}
 }
