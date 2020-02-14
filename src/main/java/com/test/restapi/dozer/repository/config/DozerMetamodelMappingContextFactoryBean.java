@@ -9,7 +9,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.Nullable;
 
-import com.test.restapi.dozer.repository.mapping.DozerMetamodelMappingContext;
+import com.test.restapi.dozer.mapping.DozerMetamodelMappingContext;
 
 public class DozerMetamodelMappingContextFactoryBean extends AbstractFactoryBean<DozerMetamodelMappingContext>
 		implements ApplicationContextAware {

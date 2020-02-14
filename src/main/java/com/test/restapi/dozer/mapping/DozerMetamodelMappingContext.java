@@ -1,4 +1,4 @@
-package com.test.restapi.dozer.repository.mapping;
+package com.test.restapi.dozer.mapping;
 
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.data.mapping.context.AbstractMappingContext;
@@ -8,9 +8,6 @@ import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.util.TypeInformation;
 
 import com.test.restapi.dozer.annotation.DozerEntity;
-import com.test.restapi.dozer.mapping.DozerPersistentEntityImpl;
-import com.test.restapi.dozer.mapping.DozerPersistentProperty;
-import com.test.restapi.dozer.mapping.DozerPersistentPropertyImpl;
 
 public class DozerMetamodelMappingContext
 		extends AbstractMappingContext<DozerPersistentEntityImpl<?>, DozerPersistentProperty> {
