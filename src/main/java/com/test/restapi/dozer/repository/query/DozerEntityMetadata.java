@@ -1,4 +1,4 @@
-package com.test.restapi.dozer;
+package com.test.restapi.dozer.repository.query;
 
 import org.springframework.data.repository.core.EntityMetadata;
 

@@ -1,4 +1,4 @@
-package com.test.restapi.dozer;
+package com.test.restapi.dozer.repository.config;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -17,6 +17,7 @@ import org.springframework.data.repository.query.QueryLookupStrategy;
 import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 
 import com.github.dozermapper.core.Mapper;
+import com.test.restapi.dozer.repository.support.DozerRepositoryFactoryBean;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

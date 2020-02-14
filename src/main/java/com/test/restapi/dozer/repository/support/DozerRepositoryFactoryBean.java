@@ -1,4 +1,4 @@
-package com.test.restapi.dozer;
+package com.test.restapi.dozer.repository.support;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;

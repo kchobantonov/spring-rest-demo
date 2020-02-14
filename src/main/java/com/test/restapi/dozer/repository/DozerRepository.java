@@ -1,4 +1,4 @@
-package com.test.restapi.dozer;
+package com.test.restapi.dozer.repository;
 
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.PagingAndSortingRepository;

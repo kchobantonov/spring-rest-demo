@@ -1,4 +1,4 @@
-package com.test.restapi.dozer;
+package com.test.restapi.dozer.repository.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +8,8 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.Nullable;
+
+import com.test.restapi.dozer.repository.mapping.DozerMetamodelMappingContext;
 
 public class DozerMetamodelMappingContextFactoryBean extends AbstractFactoryBean<DozerMetamodelMappingContext>
 		implements ApplicationContextAware {

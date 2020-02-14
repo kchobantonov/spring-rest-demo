@@ -3,7 +3,7 @@ package com.test.restapi.data.rest;
 import org.springframework.data.annotation.Id;
 
 import com.test.restapi.data.jpa.Person;
-import com.test.restapi.dozer.DozerEntity;
+import com.test.restapi.dozer.annotation.DozerEntity;
 
 import lombok.Data;
 

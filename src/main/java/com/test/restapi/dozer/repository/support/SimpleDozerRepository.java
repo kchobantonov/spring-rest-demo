@@ -1,4 +1,4 @@
-package com.test.restapi.dozer;
+package com.test.restapi.dozer.repository.support;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -20,6 +20,7 @@ import com.github.dozermapper.core.Mapper;
 import com.github.dozermapper.core.MappingException;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
+import com.test.restapi.dozer.annotation.DozerEntity;
 
 public class SimpleDozerRepository<T, ID> implements DozerRepositoryImplementation<T, ID>, BeanPostProcessor {
 

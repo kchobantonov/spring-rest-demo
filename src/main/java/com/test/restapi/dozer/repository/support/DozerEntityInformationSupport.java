@@ -1,10 +1,13 @@
-package com.test.restapi.dozer;
+package com.test.restapi.dozer.repository.support;
 
 import javax.persistence.EntityManager;
 
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.repository.core.support.AbstractEntityInformation;
 import org.springframework.util.Assert;
+
+import com.test.restapi.dozer.repository.query.DefaultDozerEntityMetadata;
+import com.test.restapi.dozer.repository.query.DozerEntityMetadata;
 
 public abstract class DozerEntityInformationSupport<T, ID> extends AbstractEntityInformation<T, ID>
 		implements DozerEntityInformation<T, ID> {

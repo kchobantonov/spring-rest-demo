@@ -1,4 +1,4 @@
-package com.test.restapi.dozer;
+package com.test.restapi.dozer.mapping;
 
 import java.util.Comparator;
 

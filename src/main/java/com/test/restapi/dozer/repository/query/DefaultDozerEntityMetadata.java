@@ -1,7 +1,9 @@
-package com.test.restapi.dozer;
+package com.test.restapi.dozer.repository.query;
 
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.util.Assert;
+
+import com.test.restapi.dozer.annotation.DozerEntity;
 
 public class DefaultDozerEntityMetadata<T> implements DozerEntityMetadata<T> {
 	private final Class<T> domainType;

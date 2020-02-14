@@ -1,4 +1,4 @@
-package com.test.restapi.dozer;
+package com.test.restapi.dozer.repository.config;
 
 import java.lang.annotation.Annotation;
 

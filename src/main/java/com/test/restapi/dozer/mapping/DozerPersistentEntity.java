@@ -1,4 +1,4 @@
-package com.test.restapi.dozer;
+package com.test.restapi.dozer.mapping;
 
 import org.springframework.data.mapping.PersistentEntity;
 

@@ -1,7 +1,9 @@
-package com.test.restapi.dozer;
+package com.test.restapi.dozer.repository.support;
 
 import org.springframework.data.jpa.repository.query.EscapeCharacter;
 import org.springframework.data.repository.NoRepositoryBean;
+
+import com.test.restapi.dozer.repository.DozerRepository;
 
 @NoRepositoryBean
 public interface DozerRepositoryImplementation<T, ID>

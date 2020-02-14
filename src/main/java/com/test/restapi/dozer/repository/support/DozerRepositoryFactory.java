@@ -1,4 +1,4 @@
-package com.test.restapi.dozer;
+package com.test.restapi.dozer.repository.support;
 
 import static org.springframework.data.querydsl.QuerydslUtils.QUERY_DSL_PRESENT;
 
@@ -30,6 +30,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
 import com.github.dozermapper.core.Mapper;
+import com.test.restapi.dozer.repository.DozerRepository;
 
 public class DozerRepositoryFactory extends RepositoryFactorySupport {
 	private final Mapper dozerMapper;

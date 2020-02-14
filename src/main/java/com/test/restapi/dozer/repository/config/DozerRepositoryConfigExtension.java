@@ -1,4 +1,4 @@
-package com.test.restapi.dozer;
+package com.test.restapi.dozer.repository.config;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
@@ -13,6 +13,11 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.data.repository.config.AnnotationRepositoryConfigurationSource;
 import org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport;
 import org.springframework.data.repository.config.RepositoryConfigurationSource;
+
+import com.test.restapi.dozer.annotation.DozerEntity;
+import com.test.restapi.dozer.repository.DozerRepository;
+import com.test.restapi.dozer.repository.support.DozerEvaluationContextExtension;
+import com.test.restapi.dozer.repository.support.DozerRepositoryFactoryBean;
 
 public class DozerRepositoryConfigExtension extends RepositoryConfigurationExtensionSupport {
 	private static final String MAPPING_CONTEXT_BEAN_NAME = "dozerMappingContext";
