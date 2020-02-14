@@ -2,9 +2,9 @@ package com.test.restapi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.dozer.repository.config.EnableDozerRepositories;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.test.restapi.dozer.repository.config.EnableDozerRepositories;
 import com.test.restapi.repository.jpa.PersonRepository;
 import com.test.restapi.repository.rest.PersonResourceRepository;
 
