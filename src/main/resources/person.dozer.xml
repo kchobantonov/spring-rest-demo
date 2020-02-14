@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings
+	xmlns="http://dozermapper.github.io/schema/bean-mapping"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://dozermapper.github.io/schema/bean-mapping https://dozermapper.github.io/schema/bean-mapping.xsd">
+
+	<mapping>
+		<class-a>com.test.restapi.data.jpa.Person</class-a>
+		<class-b>com.test.restapi.data.rest.PersonResource</class-b>
+		<field>
+			<a>id</a>
+			<b>id</b>
+		</field>
+	</mapping>
+
+	<mapping>
+		<class-a bean-factory="com.test.restapi.data.rest.UUIDBeanFactory">java.util.UUID</class-a>
+		<class-b>java.lang.String</class-b>
+	</mapping>
+</mappings>

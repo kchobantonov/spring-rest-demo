@@ -10,3 +10,6 @@ spring:
   data:
     rest:
       base-path: /api/rest/v1
+dozer:
+  mapping-files:
+  - classpath:person.dozer.xml      

@@ -13,8 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import com.test.restapi.data.jpa.Person;
 import com.test.restapi.data.jpa.User;
-import com.test.restapi.repository.jpa.UserRepository;
+import com.test.restapi.repository.jpa.PersonRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,26 +23,26 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DataInitializer {
 	@Autowired
-	public DataInitializer(UserRepository repository) throws Exception {
+	public DataInitializer(PersonRepository repository) throws Exception {
 
 		if (repository.count() != 0) {
 			return;
 		}
 
-		List<User> users = readUsers();
-		log.info("Importing {} users into JPA store…", users.size());
-		repository.saveAll(users);
+		List<Person> people = readUsers();
+		log.info("Importing {} users into JPA store…", people.size());
+		repository.saveAll(people);
 		log.info("Successfully imported {} users.", repository.count());
 	}
 
-	private List<User> readUsers() throws Exception {
-		ClassPathResource resource = new ClassPathResource("users.csv");
+	private List<Person> readUsers() throws Exception {
+		ClassPathResource resource = new ClassPathResource("people.csv");
 
 		Scanner scanner = new Scanner(resource.getInputStream());
 		String line = scanner.nextLine();
 		scanner.close();
 
-		FlatFileItemReader<User> itemReader = new FlatFileItemReader<User>();
+		FlatFileItemReader<Person> itemReader = new FlatFileItemReader<Person>();
 		itemReader.setResource(resource);
 
 		// DelimitedLineTokenizer defaults to comma as its delimiter
@@ -49,11 +50,18 @@ public class DataInitializer {
 		tokenizer.setNames(line.split(","));
 		tokenizer.setStrict(false);
 
-		DefaultLineMapper<User> lineMapper = new DefaultLineMapper<User>();
+		DefaultLineMapper<Person> lineMapper = new DefaultLineMapper<Person>();
 
 		lineMapper.setFieldSetMapper(fields -> {
-			return User.builder().username(fields.readString("UserName")).password(fields.readString("Password"))
-					.enabled(fields.readBoolean("Enabled")).build();
+			Person person = new Person();
+			person.setFirstName(fields.readString("firstName"));
+			person.setLastName(fields.readString("lastName"));
+			person.setEnabled(fields.readBoolean("enabled"));
+			person.setUsername(fields.readString("username"));
+			person.setPassword(fields.readString("password"));
+			person.setTitle(fields.readString("title"));
+
+			return person;
 		});
 
 		lineMapper.setLineTokenizer(tokenizer);
@@ -62,8 +70,8 @@ public class DataInitializer {
 		itemReader.setLinesToSkip(1);
 		itemReader.open(new ExecutionContext());
 
-		List<User> users = new ArrayList<>();
-		User user = null;
+		List<Person> users = new ArrayList<>();
+		Person user = null;
 
 		do {
 
