@@ -14,4 +14,6 @@ public interface DozerRepositoryImplementation<T, ID>
 	default void setEscapeCharacter(EscapeCharacter escapeCharacter) {
 
 	}
+	
+	void validateAfterRefresh();
 }

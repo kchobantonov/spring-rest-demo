@@ -1,10 +1,12 @@
 package com.test.restapi.dozer;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.data.jpa.repository.query.EscapeCharacter;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.querydsl.EntityPathResolver;
@@ -18,12 +20,14 @@ import org.springframework.util.Assert;
 import com.github.dozermapper.core.Mapper;
 
 public class DozerRepositoryFactoryBean<T extends Repository<S, ID>, S, ID>
-		extends RepositoryFactoryBeanSupport<T, S, ID> implements ApplicationContextAware {
+		extends RepositoryFactoryBeanSupport<T, S, ID> implements ApplicationListener {
 
 	private @Nullable Mapper dozerMapper;
 	private EntityPathResolver entityPathResolver;
 	private EscapeCharacter escapeCharacter = EscapeCharacter.DEFAULT;
-	private ApplicationContext applicationContext;
+	private BeanFactory beanFactory;
+
+	private DozerRepositoryFactory dozerRepositoryFactory;
 
 	/**
 	 * Creates a new {@link DozerRepositoryFactoryBean} for the given repository
@@ -33,11 +37,6 @@ public class DozerRepositoryFactoryBean<T extends Repository<S, ID>, S, ID>
 	 */
 	public DozerRepositoryFactoryBean(Class<? extends T> repositoryInterface) {
 		super(repositoryInterface);
-	}
-
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
 	}
 
 	/*
@@ -66,10 +65,23 @@ public class DozerRepositoryFactoryBean<T extends Repository<S, ID>, S, ID>
 
 	@Override
 	protected RepositoryFactorySupport createRepositoryFactory() {
-		DozerRepositoryFactory dozerRepositoryFactory = new DozerRepositoryFactory(dozerMapper, applicationContext);
+		dozerRepositoryFactory = new DozerRepositoryFactory(dozerMapper, beanFactory);
 		dozerRepositoryFactory.setEntityPathResolver(entityPathResolver);
 		dozerRepositoryFactory.setEscapeCharacter(escapeCharacter);
 		return dozerRepositoryFactory;
+	}
+
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		super.setBeanFactory(beanFactory);
+		this.beanFactory = beanFactory;
+	}
+
+	@Override
+	public void onApplicationEvent(ApplicationEvent event) {
+		if (event instanceof ContextRefreshedEvent && dozerRepositoryFactory != null) {
+			dozerRepositoryFactory.validateAfterRefresh();
+		}
 	}
 
 	/*

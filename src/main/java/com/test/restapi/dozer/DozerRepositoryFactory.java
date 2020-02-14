@@ -4,11 +4,12 @@ import static org.springframework.data.querydsl.QuerydslUtils.QUERY_DSL_PRESENT;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.jpa.projection.CollectionAwareProjectionFactory;
 import org.springframework.data.jpa.repository.query.EscapeCharacter;
@@ -32,21 +33,23 @@ import com.github.dozermapper.core.Mapper;
 
 public class DozerRepositoryFactory extends RepositoryFactorySupport {
 	private final Mapper dozerMapper;
-	private final ApplicationContext applicationContext;
-	
+	private final BeanFactory beanFactory;
+
 	private EntityPathResolver entityPathResolver;
 	private EscapeCharacter escapeCharacter = EscapeCharacter.DEFAULT;
+
+	private List<DozerRepositoryImplementation> repositoriesToValidateAfterRefresh = new ArrayList<DozerRepositoryImplementation>();
 
 	/**
 	 * Creates a new {@link DozerRepositoryFactory}.
 	 * 
 	 * @param dozerMapper must not be {@literal null}
 	 */
-	public DozerRepositoryFactory(Mapper dozerMapper, ApplicationContext applicationContext) {
+	public DozerRepositoryFactory(Mapper dozerMapper, BeanFactory beanFactory) {
 		this.entityPathResolver = SimpleEntityPathResolver.INSTANCE;
 		this.dozerMapper = dozerMapper;
-		this.applicationContext = applicationContext;
-		
+		this.beanFactory = beanFactory;
+
 		addRepositoryProxyPostProcessor((factory, repositoryInformation) -> {
 
 			if (hasMethodReturningStream(repositoryInformation.getRepositoryInterface())) {
@@ -90,7 +93,7 @@ public class DozerRepositoryFactory extends RepositoryFactorySupport {
 	@Override
 	protected final DozerRepositoryImplementation<?, ?> getTargetRepository(RepositoryInformation information) {
 
-		DozerRepositoryImplementation<?, ?> repository = getTargetRepository(information, dozerMapper, applicationContext);
+		DozerRepositoryImplementation<?, ?> repository = getTargetRepository(information, dozerMapper, beanFactory);
 		repository.setEscapeCharacter(escapeCharacter);
 
 		return repository;
@@ -105,14 +108,17 @@ public class DozerRepositoryFactory extends RepositoryFactorySupport {
 	 * @return
 	 */
 	protected DozerRepositoryImplementation<?, ?> getTargetRepository(RepositoryInformation information,
-			Mapper dozerMapper, ApplicationContext applicationContext) {
+			Mapper dozerMapper, BeanFactory beanFactory) {
 
 		DozerEntityInformation<?, Serializable> entityInformation = getEntityInformation(information.getDomainType());
-		Object repository = getTargetRepositoryViaReflection(information, entityInformation, dozerMapper, applicationContext);
-		
+		Object repository = getTargetRepositoryViaReflection(information, entityInformation, dozerMapper, beanFactory);
+
 		Assert.isInstanceOf(DozerRepositoryImplementation.class, repository);
 
-		return (DozerRepositoryImplementation<?, ?>) repository;
+		DozerRepositoryImplementation<?, ?> result = (DozerRepositoryImplementation<?, ?>) repository;
+		repositoriesToValidateAfterRefresh.add(result);
+
+		return result;
 	}
 
 	/*
@@ -231,6 +237,14 @@ public class DozerRepositoryFactory extends RepositoryFactorySupport {
 		}
 
 		return false;
+	}
+
+	public void validateAfterRefresh() {
+		for (DozerRepositoryImplementation<?, ?> repo : repositoriesToValidateAfterRefresh) {
+			repo.validateAfterRefresh();
+		}
+
+		repositoriesToValidateAfterRefresh.clear();
 	}
 
 }

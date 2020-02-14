@@ -1,9 +1,11 @@
 package com.test.restapi.dozer;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -28,21 +30,21 @@ public class SimpleDozerRepository<T, ID> implements DozerRepositoryImplementati
 	private final Lazy<Optional<PagingAndSortingRepository<Object, Object>>> delegateRepository;
 
 	public SimpleDozerRepository(DozerEntityInformation<T, ?> entityInformation, Mapper dozerMapper,
-			ApplicationContext applicationContext) {
+			BeanFactory beanFactory) {
 
 		Assert.notNull(entityInformation, "DozerEntityInformation must not be null!");
 		Assert.notNull(dozerMapper, "Mapper must not be null!");
-		Assert.notNull(applicationContext, "ApplicationContext must not be null!");
+		Assert.isInstanceOf(ListableBeanFactory.class, beanFactory, "beanFactory must be of type ListableBeanFactory!");
 
 		this.entityInformation = entityInformation;
 		this.dozerMapper = dozerMapper;
 
-		this.delegateRepositoryInformation = Lazy.of(() -> applicationContext.getBeanProvider(Repositories.class)
-				.getIfAvailable(() -> new Repositories(applicationContext))
+		this.delegateRepositoryInformation = Lazy.of(() -> beanFactory.getBeanProvider(Repositories.class)
+				.getIfAvailable(() -> new Repositories((ListableBeanFactory) beanFactory))
 				.getRepositoryInformationFor(entityInformation.getTargetEntityClass()));
 
-		this.delegateRepository = Lazy.of(() -> applicationContext.getBeanProvider(Repositories.class)
-				.getIfAvailable(() -> new Repositories(applicationContext))
+		this.delegateRepository = Lazy.of(() -> beanFactory.getBeanProvider(Repositories.class)
+				.getIfAvailable(() -> new Repositories((ListableBeanFactory) beanFactory))
 				.getRepositoryFor(entityInformation.getTargetEntityClass())
 				.map(r -> (PagingAndSortingRepository<Object, Object>) r));
 	}
@@ -53,6 +55,27 @@ public class SimpleDozerRepository<T, ID> implements DozerRepositoryImplementati
 
 	private PagingAndSortingRepository<Object, Object> getDelegateRepository() {
 		return delegateRepository.get().get();
+	}
+
+	@Override
+	public void validateAfterRefresh() {
+		try {
+			getDelegateRepositoryInformation();
+		} catch (NoSuchElementException e) {
+			throw new IllegalStateException(
+					"Unable to find repository information for " + entityInformation.getTargetEntityClass()
+							+ " to support dozer entity " + entityInformation.getJavaType() + ". Validate annotation "
+							+ DozerEntity.class + " attribute domainClass",
+					e);
+		}
+		try {
+			getDelegateRepository();
+		} catch (Exception e) {
+			throw new IllegalStateException("Unable to find " + PagingAndSortingRepository.class + " repository for "
+					+ entityInformation.getTargetEntityClass() + " to support dozer entity "
+					+ entityInformation.getJavaType() + ". Validate annotation " + DozerEntity.class
+					+ " attribute domainClass", e);
+		}
 	}
 
 	@Override
