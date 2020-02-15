@@ -10,7 +10,11 @@ import lombok.Data;
 @DozerEntity(adaptedDomainClass = Person.class)
 @Data
 public class PersonResource {
-	
+
 	@Id
 	private String id;
+
+	private String firstName;
+	private String lastName;
+
 }
