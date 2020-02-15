@@ -1,4 +1,4 @@
-package com.test.restapi;
+package com.test.restapi.dbinit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,16 +14,15 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import com.test.restapi.data.jpa.Person;
-import com.test.restapi.data.jpa.User;
 import com.test.restapi.repository.jpa.PersonRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-public class DataInitializer {
+public class UserInitializer {
 	@Autowired
-	public DataInitializer(PersonRepository repository) throws Exception {
+	public UserInitializer(PersonRepository repository) throws Exception {
 
 		if (repository.count() != 0) {
 			return;

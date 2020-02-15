@@ -1,22 +1,15 @@
 package com.test.restapi.data.jpa;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
-
-import org.eclipse.persistence.annotations.Convert;
-import org.eclipse.persistence.annotations.Converter;
-import org.eclipse.persistence.annotations.UuidGenerator;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -33,20 +26,12 @@ import lombok.Setter;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Data
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Converter(name = "uuid", converterClass = UUIDConverter.class)
 @EntityListeners(UserEncryptPasswordListener.class)
-public class User {
-
-	@Id
-	@UuidGenerator(name = "uuid")
-	@GeneratedValue(generator = "uuid")
-	@Column(name = "id", updatable = false, nullable = false)
-	@Convert("uuid")
-	private UUID id;
+public class User extends AbstractEntity {
 
 	@Basic
 	@Column(unique = true, name = "USERNAME")
