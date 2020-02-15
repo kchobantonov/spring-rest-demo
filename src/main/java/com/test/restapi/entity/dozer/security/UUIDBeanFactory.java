@@ -1,4 +1,4 @@
-package com.test.restapi.data.rest;
+package com.test.restapi.entity.dozer.security;
 
 import java.util.UUID;
 

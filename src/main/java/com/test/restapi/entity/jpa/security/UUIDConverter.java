@@ -1,4 +1,4 @@
-package com.test.restapi.data.jpa;
+package com.test.restapi.entity.jpa.security;
 
 import java.nio.ByteBuffer;
 import java.util.UUID;

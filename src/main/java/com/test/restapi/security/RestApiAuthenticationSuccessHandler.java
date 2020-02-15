@@ -11,7 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.test.restapi.repository.jpa.UserRepository;
+import com.test.restapi.repository.jpa.security.UserRepository;
 
 @Component
 public class RestApiAuthenticationSuccessHandler implements AuthenticationSuccessHandler {

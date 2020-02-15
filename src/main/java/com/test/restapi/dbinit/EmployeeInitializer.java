@@ -7,8 +7,8 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.test.restapi.data.jpa.employee.Employee;
-import com.test.restapi.data.jpa.employee.Gender;
+import com.test.restapi.entity.jpa.employee.Employee;
+import com.test.restapi.entity.jpa.employee.Gender;
 import com.test.restapi.repository.jpa.employee.EmployeeRepository;
 
 import lombok.extern.slf4j.Slf4j;

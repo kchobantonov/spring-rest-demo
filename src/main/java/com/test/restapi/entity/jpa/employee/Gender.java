@@ -1,4 +1,4 @@
-package com.test.restapi.data.jpa.employee;
+package com.test.restapi.entity.jpa.employee;
 
 /**
  * Simple enum used in an ObjectTypeConverter

@@ -1,9 +1,9 @@
-package com.test.restapi.data.rest;
+package com.test.restapi.entity.dozer.security;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.dozer.annotation.DozerEntity;
 
-import com.test.restapi.data.jpa.Person;
+import com.test.restapi.entity.jpa.security.Person;
 
 import lombok.Data;
 

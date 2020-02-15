@@ -5,12 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.dozer.repository.config.EnableDozerRepositories;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.test.restapi.repository.jpa.PersonRepository;
-import com.test.restapi.repository.rest.PersonResourceRepository;
-
 @SpringBootApplication
-@EnableJpaRepositories(basePackageClasses = PersonRepository.class)
-@EnableDozerRepositories(basePackageClasses = PersonResourceRepository.class)
+@EnableJpaRepositories(basePackages = "com.test.restapi.repository.jpa")
+@EnableDozerRepositories(basePackages = "com.test.restapi.repository.dozer")
 public class RestApiApplication {
 
 	public static void main(String[] args) {

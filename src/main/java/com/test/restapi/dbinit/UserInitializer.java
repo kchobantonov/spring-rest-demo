@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
-import com.test.restapi.data.jpa.Person;
-import com.test.restapi.repository.jpa.PersonRepository;
+import com.test.restapi.entity.jpa.security.Person;
+import com.test.restapi.repository.jpa.security.PersonRepository;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -9,12 +9,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import com.test.restapi.data.jpa.UserEncryptPasswordListener;
+import com.test.restapi.entity.jpa.security.UserEncryptPasswordListener;
 import com.test.restapi.security.RestApiAuthenticationSuccessHandler;
 import com.test.restapi.security.RestApiBasicAuthenticationFilter;
 import com.test.restapi.security.RestApiUserDetailsService;

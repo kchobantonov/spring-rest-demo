@@ -1,4 +1,4 @@
-package com.test.restapi.repository.jpa;
+package com.test.restapi.repository.jpa.security;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.test.restapi.data.jpa.User;
+import com.test.restapi.entity.jpa.security.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {

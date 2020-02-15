@@ -10,8 +10,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
-import com.test.restapi.data.jpa.User;
-import com.test.restapi.repository.jpa.UserRepository;
+import com.test.restapi.entity.jpa.security.User;
+import com.test.restapi.repository.jpa.security.UserRepository;
 
 @Component
 public class RestApiUserDetailsService implements UserDetailsService {

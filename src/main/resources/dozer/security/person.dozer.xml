@@ -5,8 +5,8 @@
 	xsi:schemaLocation="http://dozermapper.github.io/schema/bean-mapping https://dozermapper.github.io/schema/bean-mapping.xsd">
 
 	<mapping>
-		<class-a>com.test.restapi.data.jpa.Person</class-a>
-		<class-b>com.test.restapi.data.rest.PersonResource</class-b>
+		<class-a>com.test.restapi.entity.jpa.security.Person</class-a>
+		<class-b>com.test.restapi.entity.dozer.security.PersonResource</class-b>
 		<field>
 			<a>id</a>
 			<b>id</b>
@@ -14,7 +14,7 @@
 	</mapping>
 	
 	<mapping>
-		<class-a bean-factory="com.test.restapi.data.rest.UUIDBeanFactory">java.util.UUID</class-a>
+		<class-a bean-factory="com.test.restapi.entity.dozer.security.UUIDBeanFactory">java.util.UUID</class-a>
 		<class-b>java.lang.String</class-b>
 	</mapping>
 </mappings>

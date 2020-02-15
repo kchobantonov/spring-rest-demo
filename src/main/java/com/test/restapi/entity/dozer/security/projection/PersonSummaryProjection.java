@@ -1,8 +1,8 @@
-package com.test.restapi.data.rest.projection;
+package com.test.restapi.entity.dozer.security.projection;
 
 import org.springframework.data.rest.core.config.Projection;
 
-import com.test.restapi.data.rest.PersonResource;
+import com.test.restapi.entity.dozer.security.PersonResource;
 
 @Projection(name = "summary", types = PersonResource.class)
 public interface PersonSummaryProjection {
