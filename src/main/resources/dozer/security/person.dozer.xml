@@ -13,8 +13,4 @@
 		</field>
 	</mapping>
 	
-	<mapping>
-		<class-a bean-factory="com.test.restapi.entity.dozer.security.UUIDBeanFactory">java.util.UUID</class-a>
-		<class-b>java.lang.String</class-b>
-	</mapping>
 </mappings>
