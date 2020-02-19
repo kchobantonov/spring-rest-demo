@@ -40,7 +40,11 @@ public class EmployeeInitializer {
 	public List<Employee> createEmployees(int quantity) {
 		List<Employee> result = new ArrayList<Employee>();
 		for (int index = 0; index < quantity; index++) {
-			result.add(createRandomEmployee());
+			Employee employee = createRandomEmployee();
+			if (!result.isEmpty()) {
+				employee.setManager(result.get(result.size() - 1));
+			}
+			result.add(employee);
 		}
 
 		return result;

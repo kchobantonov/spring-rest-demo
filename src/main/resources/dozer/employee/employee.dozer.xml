@@ -11,6 +11,26 @@
 			<a>id</a>
 			<b>id</b>
 		</field>
+		<field>
+			<a>gender</a>
+			<b>gender</b>
+		</field>
+		<field>
+			<a>firstName</a>
+			<b>firstName</b>
+		</field>
+		<field>
+			<a>lastName</a>
+			<b>lastName</b>
+		</field>
+		<field>
+			<a>salary</a>
+			<b>salary</b>
+		</field>
+		<field>
+			<a>manager</a>
+			<b>manager</b>
+		</field>
 	</mapping>
 
 </mappings>
