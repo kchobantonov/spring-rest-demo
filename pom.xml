@@ -39,7 +39,7 @@
 
 		<dependency>
 			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-dozer</artifactId>
+			<artifactId>spring-data-dozer-jpa</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
