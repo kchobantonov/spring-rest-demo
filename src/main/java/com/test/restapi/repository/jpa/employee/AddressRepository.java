@@ -7,5 +7,5 @@ import com.test.restapi.entity.jpa.employee.Address;
 
 @Repository
 public interface AddressRepository extends JpaRepository<Address, Integer> {
-
+	
 }

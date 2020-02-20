@@ -8,4 +8,5 @@ import com.test.restapi.entity.dozer.security.PersonResource;
 @RepositoryRestResource(collectionResourceRel = "people", itemResourceRel = "person", path = "people")
 public interface PersonResourceRepository extends DozerRepository<PersonResource, String> {
 
+
 }

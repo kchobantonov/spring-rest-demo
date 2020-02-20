@@ -10,6 +10,7 @@ spring:
   data:
     rest:
       base-path: /api/rest/v1
+      detection-strategy: annotated
 dozer:
   mapping-files:
   - classpath:dozer/security/person.dozer.xml    
