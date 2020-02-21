@@ -17,26 +17,10 @@
 
 	<properties>
 		<java.version>1.8</java.version>
-		<vaadin.version>14.1.17</vaadin.version>
 		<eclipselink.version>2.7.4</eclipselink.version>
 	</properties>
 
 	<dependencies>
-		<!-- 
-		<dependency>
-			<groupId>com.querydsl</groupId>
-			<artifactId>querydsl-apt</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.querydsl</groupId>
-			<artifactId>querydsl-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.querydsl</groupId>
-			<artifactId>querydsl-core</artifactId>
-		</dependency>
-		 -->
-
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-dozer-jpa</artifactId>
@@ -85,10 +69,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		<!-- <dependency> <groupId>com.vaadin</groupId> <artifactId>vaadin-spring-boot-starter</artifactId> 
-			</dependency> -->
-		<!-- <dependency> <groupId>org.liquibase</groupId> <artifactId>liquibase-core</artifactId> 
-			</dependency> -->
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-rest-hal-browser</artifactId>
@@ -97,7 +77,6 @@
 			<groupId>org.springframework.session</groupId>
 			<artifactId>spring-session-core</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
@@ -130,23 +109,17 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>capital.scalable</groupId>
+			<artifactId>spring-auto-restdocs-core</artifactId>
+			<version>2.0.7</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-bom</artifactId>
-				<version>${vaadin.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<build>
 		<plugins>
@@ -164,6 +137,11 @@
 						<configuration>
 							<backend>html</backend>
 							<doctype>book</doctype>
+							<attributes>
+								<snippets>${project.build.directory}/generated-snippets</snippets>
+							</attributes>
+							<sourceDirectory>src/docs/asciidoc</sourceDirectory>
+							<outputDirectory>target/generated-docs</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
@@ -179,6 +157,96 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>copy-index-public</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.outputDirectory}/public</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.build.directory}/generated-docs</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-index-generated-docs</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.basedir}/generated-docs</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.build.directory}/generated-docs</directory>
+									<includes>
+										<include>index.html</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<tags>
+								<tag>
+									<name>title</name>
+									<placement>m</placement>
+								</tag>
+							</tags>
+						</configuration>
+					</execution>
+					<execution>
+						<id>generate-javadoc-json</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>javadoc-no-fork</goal>
+						</goals>
+						<configuration>
+							<doclet>capital.scalable.restdocs.jsondoclet.ExtractDocumentationAsJsonDoclet</doclet>
+							<docletArtifact>
+								<groupId>capital.scalable</groupId>
+								<artifactId>${json-doclet.artifactId}</artifactId>
+								<version>${spring-auto-restdocs.version}</version>
+							</docletArtifact>
+							<reportOutputDirectory>${project.build.directory}</reportOutputDirectory>
+							<useStandardDocletOptions>false</useStandardDocletOptions>
+							<show>package</show>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 
@@ -269,27 +337,57 @@
 						</configuration>
 					</plugin>
 
-					<!-- 
-					<plugin>
-						<groupId>com.mysema.maven</groupId>
-						<artifactId>apt-maven-plugin</artifactId>
-						<version>1.1.3</version>
-						<executions>
-							<execution>
-								<goals>
-									<goal>process</goal>
-								</goals>
-								<configuration>
-									<outputDirectory>target/generated-sources/java</outputDirectory>
-									<processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					 -->
+
 				</plugins>
 			</build>
 		</profile>
-
+		<profile>
+			<id>java8</id>
+			<activation>
+				<jdk>1.8</jdk>
+			</activation>
+			<properties>
+				<java.version>1.8</java.version>
+				<maven.compiler.source>1.8</maven.compiler.source>
+				<maven.compiler.target>1.8</maven.compiler.target>
+				<json-doclet.artifactId>spring-auto-restdocs-json-doclet</json-doclet.artifactId>
+			</properties>
+		</profile>
+		<profile>
+			<id>java9</id>
+			<activation>
+				<jdk>9</jdk>
+			</activation>
+			<properties>
+				<java.version>9</java.version>
+				<maven.compiler.source>9</maven.compiler.source>
+				<maven.compiler.target>9</maven.compiler.target>
+				<json-doclet.artifactId>spring-auto-restdocs-json-doclet-jdk9</json-doclet.artifactId>
+			</properties>
+		</profile>
+		<profile>
+			<id>java10</id>
+			<activation>
+				<jdk>10</jdk>
+			</activation>
+			<properties>
+				<java.version>10</java.version>
+				<maven.compiler.source>10</maven.compiler.source>
+				<maven.compiler.target>10</maven.compiler.target>
+				<json-doclet.artifactId>spring-auto-restdocs-json-doclet-jdk9</json-doclet.artifactId>
+			</properties>
+		</profile>
+		<profile>
+			<id>java11</id>
+			<activation>
+				<jdk>11</jdk>
+			</activation>
+			<properties>
+				<java.version>11</java.version>
+				<maven.compiler.source>11</maven.compiler.source>
+				<maven.compiler.target>11</maven.compiler.target>
+				<json-doclet.artifactId>spring-auto-restdocs-json-doclet-jdk9</json-doclet.artifactId>
+			</properties>
+		</profile>
 	</profiles>
 </project>
