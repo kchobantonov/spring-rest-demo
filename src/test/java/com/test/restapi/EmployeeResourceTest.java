@@ -98,7 +98,7 @@ public class EmployeeResourceTest extends MockMvcBase {
 
 	@Test
 	@Order(6)
-	public void deleteItem() throws Exception {
+	public void deleteEmployee() throws Exception {
 		mockMvc.perform(delete(getResourceItemPath(EmployeeResource.class), item.getId()))
 				.andExpect(status().isNoContent());
 	}

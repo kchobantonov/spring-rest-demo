@@ -1,0 +1,69 @@
+[[resources-employees]]
+== Employees
+
+[[resources-employees-get]]
+=== Get an employee
+
+`GET /employees/{id}`
+
+==== Authorization
+
+include::{snippets}/employee-resource-test/get-employee/auto-authorization.adoc[]
+
+==== Path parameters
+
+include::{snippets}/employee-resource-test/get-employee/auto-path-parameters.adoc[]
+
+==== Request fields
+
+include::{snippets}/employee-resource-test/get-employee/auto-request-fields.adoc[]
+
+We do not have to care whether to include a snippet or not,
+because the template returns "No data." instead of an empty table.
+
+==== Response fields
+
+include::{snippets}/employee-resource-test/get-employee/auto-response-fields.adoc[]
+
+==== Example request/response
+
+include::{snippets}/employee-resource-test/get-employee/curl-request.adoc[]
+include::{snippets}/employee-resource-test/get-employee/http-response.adoc[]
+
+
+[[resources-employees-all]]
+=== Get all employees
+
+`GET /employees`
+
+As AsciiDoc is used, any additional information can be placed here and you don't have to care about formatting.
+
+This endpoint really returns all employees and that is always 100.
+
+include::{snippets}/employee-resource-test/get-all-employees/auto-description.adoc[]
+
+==== Authorization
+
+include::{snippets}/employee-resource-test/get-all-employees/auto-authorization.adoc[]
+
+==== Request fields
+
+include::{snippets}/employee-resource-test/get-all-employees/auto-request-fields.adoc[]
+
+==== Response fields
+
+include::{snippets}/employee-resource-test/get-all-employees/auto-response-fields.adoc[]
+
+==== Example request/response
+
+include::{snippets}/employee-resource-test/get-all-employees/curl-request.adoc[]
+
+The array shortening feature intercepted here and reduced the 100 employees to 3.
+
+include::{snippets}/employee-resource-test/get-all-employees/http-response.adoc[]
+
+// Use of all in one section snippets
+include::{snippets}/employee-resource-test/add-employee/auto-section.adoc[]
+include::{snippets}/employee-resource-test/update-employee/auto-section.adoc[]
+include::{snippets}/employee-resource-test/delete-employee/auto-section.adoc[]
+include::{snippets}/employee-resource-test/search/auto-section.adoc[]

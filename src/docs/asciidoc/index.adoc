@@ -119,5 +119,5 @@ Pagination response has following structure:
 [[resources]]
 = Resources
 
-include::items.adoc[]
-include::srd-items.adoc[]
+include::employees.adoc[]
+include::srd-employees.adoc[]
