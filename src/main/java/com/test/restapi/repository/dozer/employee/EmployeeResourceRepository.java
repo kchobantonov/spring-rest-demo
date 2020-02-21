@@ -27,7 +27,7 @@ public interface EmployeeResourceRepository extends DozerRepository<EmployeeReso
 	@Query("SELECT e FROM Employee e WHERE e.firstName LIKE :firstName")
 	Slice<EmployeeResource> findByFirstNameAndReturnSlice(@Param("firstName") String firstName, Pageable pageable);
 
-	//TODO check the issue with transaction not been enabled
+	// TODO check the issue with transaction not been enabled
 	@Transactional
 	@Query("SELECT e FROM Employee e WHERE e.firstName LIKE :firstName")
 	Stream<EmployeeResource> findByFirstNameAndReturnStream(@Param("firstName") String firstName, Pageable pageable);

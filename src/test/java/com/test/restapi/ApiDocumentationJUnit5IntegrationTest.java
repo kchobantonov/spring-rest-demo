@@ -56,7 +56,7 @@ public class ApiDocumentationJUnit5IntegrationTest
 
     private MockMvc               mockMvc;
 
-    @BeforeEach
+    //@BeforeEach
     public void setUp( WebApplicationContext webApplicationContext, RestDocumentationContextProvider restDocumentation )
     {
         this.mockMvc = MockMvcBuilders.webAppContextSetup( this.context )

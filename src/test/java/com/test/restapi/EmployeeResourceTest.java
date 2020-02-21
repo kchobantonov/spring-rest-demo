@@ -1,95 +1,106 @@
 package com.test.restapi;
 
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 
-public class EmployeeResourceTest extends MockMvcBase
-{
-    @Test
-    public void getItem() throws Exception {
-        mockMvc.perform(get("/items/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is("1")))
-                .andExpect(jsonPath("$.description", is("main item")))
-                .andExpect(jsonPath("$.attributes.text", is("first item")))
-                .andExpect(jsonPath("$.attributes.number", is(1)))
-                .andExpect(jsonPath("$.attributes.bool", is(true)))
-                .andExpect(jsonPath("$.attributes.decimal", is(1.11)))
-                .andExpect(jsonPath("$.attributes.amount", is("3.14 EUR")))
-                .andExpect(jsonPath("$.children").isArray())
-                .andExpect(jsonPath("$.children", hasSize(1)))
-                .andExpect(jsonPath("$.children[0].id", is("child-1")))
-                .andExpect(jsonPath("$.children[0].description", is("first child")))
-                .andExpect(jsonPath("$.children[0].attributes", nullValue()))
-                .andExpect(jsonPath("$.children[0].children", nullValue()));
-    }
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.test.restapi.entity.dozer.employee.EmployeeResource;
+import com.test.restapi.entity.jpa.employee.Gender;
 
-    @Test
-    public void getAllItems() throws Exception {
-        mockMvc.perform(get("/items"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[*].id", hasItems("1", "child-1")));
-    }
+@TestMethodOrder(OrderAnnotation.class)
+@TestInstance(Lifecycle.PER_CLASS)
+public class EmployeeResourceTest extends MockMvcBase {
+	private EmployeeResource item = new EmployeeResource();
 
-    @Test
-    public void addItem() throws Exception {
-        mockMvc.perform(post("/items")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"description\":\"Hot News\"}"))
-                .andExpect(status().isCreated())
-                .andExpect(header().string("location", is("/items/2")));
-    }
+	public EmployeeResourceTest() {
+		item.setFirstName("John");
+		item.setLastName("Doe");
+		item.setGender(Gender.Male);
+	}
 
-    @Test
-    public void updateItem() throws Exception {
-        mockMvc.perform(put("/items/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"description\":\"Hot News\"}"))
-                .andExpect(jsonPath("$.id", is("1")))
-                .andExpect(jsonPath("$.description", is("Hot News")))
-                .andExpect(status().isOk());
-    }
+	@Test
+	@Order(1)
+	public void getAllEmployees() throws Exception {
+		mockMvc.perform(get(getResourceCollectionPath(EmployeeResource.class))).andExpect(status().isOk())
+				.andExpect(jsonPath("$._embedded.employees").isArray());
+	}
 
-    @Test
-    public void deleteItem() throws Exception {
-        mockMvc.perform(delete("/items/1"))
-                .andExpect(status().isOk());
-    }
+	@Test
+	@Order(2)
+	public void searchEmpoyees() throws Exception {
+		mockMvc.perform(get(getSearchResourcePath(EmployeeResource.class))).andExpect(status().isOk())
+				.andExpect(jsonPath("$._links").isMap())
 
-    @Test
-    public void getChildItem() throws Exception {
-        mockMvc.perform(get("/items/1/child-1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is("child-1")))
-                .andExpect(jsonPath("$.description", is("first child")));
-    }
+				.andDo(document("{class-name}/search", commonResponsePreprocessor()));
+	}
 
-    @Test
-    public void searchEmpoyees() throws Exception {
-        mockMvc.perform(get("/employees/search")
-                .param("desc", "main")
-                .param("hint", "1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content", hasSize(1)))
-                .andExpect(jsonPath("$.content[0].id", is("1")))
-                .andExpect(jsonPath("$.content[0].description", is("main item")))
-                // example for overriding path and preprocessors
-                .andDo(document("{class-name}/search", commonResponsePreprocessor()));
-    }
+	@Test
+	@Order(3)
+	public void addEmployee() throws Exception {
+
+		MvcResult result = mockMvc
+				.perform(post(getResourceCollectionPath(EmployeeResource.class)).contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(item)))
+				.andExpect(status().isCreated()).andExpect(header().exists("location")).andReturn();
+
+		item.setId(getIdFromLocation(EmployeeResource.class, result.getResponse()));
+	}
+
+	@Test
+	@Order(4)
+	public void getEmployee() throws Exception {
+		findOneEmployee();
+	}
+
+	private EntityModel<EmployeeResource> findOneEmployee() throws Exception {
+		MvcResult result = mockMvc.perform(get(getResourceItemPath(EmployeeResource.class), item.getId()))
+				.andExpect(status().isOk()).andReturn();
+
+		EntityModel<EmployeeResource> model = toResourceEntity(new TypeReference<EntityModel<EmployeeResource>>() {
+		}, result.getResponse());
+
+		assertEquals(objectMapper.writeValueAsString(item), objectMapper.writeValueAsString(model.getContent()));
+
+		return model;
+	}
+
+	@Test
+	@Order(5)
+	public void updateEmployee() throws Exception {
+		item.setFirstName("Jane");
+		item.setGender(Gender.Female);
+
+		mockMvc.perform(patch(getResourceItemPath(EmployeeResource.class), item.getId())
+				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(item)))
+				.andExpect(status().isNoContent());
+
+		EntityModel<EmployeeResource> model = findOneEmployee();
+
+		assertEquals(objectMapper.writeValueAsString(item), objectMapper.writeValueAsString(model.getContent()));
+	}
+
+	@Test
+	@Order(6)
+	public void deleteItem() throws Exception {
+		mockMvc.perform(delete(getResourceItemPath(EmployeeResource.class), item.getId()))
+				.andExpect(status().isNoContent());
+	}
+
 }
