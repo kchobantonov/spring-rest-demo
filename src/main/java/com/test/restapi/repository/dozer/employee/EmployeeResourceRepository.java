@@ -15,8 +15,22 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import com.test.restapi.entity.dozer.employee.EmployeeResource;
 
-@RepositoryRestResource(collectionResourceRel = "employees", itemResourceRel = "employee", path = "restemployee")
+/**
+ * REST API endpoint to manage employee resources
+ * 
+ * @author kchobantonov
+ */
+@RepositoryRestResource(collectionResourceRel = "employees", itemResourceRel = "employee", path = "employees")
 public interface EmployeeResourceRepository extends DozerRepository<EmployeeResource, Integer> {
+
+	/**
+	 * Creates a new employee
+	 * 
+	 * @param employee the details of the new employee
+	 * @return the employee details after creating
+	 */
+	@Override
+	<S extends EmployeeResource> S save(S employee);
 
 	@Query("SELECT e FROM Employee e WHERE e.firstName LIKE :firstName")
 	Page<EmployeeResource> findByFirstNameAndReturnPage(@Param("firstName") String firstName, Pageable pageable);

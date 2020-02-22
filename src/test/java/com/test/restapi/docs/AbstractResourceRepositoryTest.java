@@ -2,6 +2,8 @@ package com.test.restapi.docs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,6 +28,13 @@ public abstract class AbstractResourceRepositoryTest<T, ID> extends MockMvcBase<
 	}
 
 	@Test
+	@Order(0)
+	public void schema() throws Exception {
+		mockMvc.perform(httpProfileResource()).andExpect(status().isOk())
+				.andDo(document("{class-name}/{method-name}", preprocessResponse(prettyPrint())));
+	}
+
+	@Test
 	@Order(1)
 	public void getResources() throws Exception {
 		mockMvc.perform(httpGetResources()).andExpect(status().isOk())
@@ -36,8 +45,7 @@ public abstract class AbstractResourceRepositoryTest<T, ID> extends MockMvcBase<
 	@Order(2)
 	public void searchResources() throws Exception {
 		if (getSearchMapping(resourceClass).isExported()) {
-			mockMvc.perform(httpSearchResources()).andExpect(status().isOk()).andExpect(jsonPath("$._links").isMap())
-					.andDo(document("{class-name}/search", commonResponsePreprocessor()));
+			mockMvc.perform(httpSearchResources()).andExpect(status().isOk()).andExpect(jsonPath("$._links").isMap());
 		}
 	}
 

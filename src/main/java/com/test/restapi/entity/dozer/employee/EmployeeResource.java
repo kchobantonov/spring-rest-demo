@@ -12,25 +12,45 @@ import com.test.restapi.entity.jpa.employee.Gender;
 
 import lombok.Data;
 
-@DozerEntity( adaptedDomainClass = Employee.class )
+/**
+ * REST API resource to represent an Employee
+ */
+@DozerEntity(adaptedDomainClass = Employee.class)
 @Data
-public class EmployeeResource
-{
-    @Id
-    private Integer          id;
+public class EmployeeResource {
+	/**
+	 * Unique identifier of the employee
+	 */
+	@Id
+	private Integer id;
 
-    private Gender           gender;
+	/**
+	 * Gender of the employee
+	 */
+	private Gender gender;
 
-    @NotBlank
-    private String           firstName;
-    
-    @NotBlank
-    @Size(max = 50)
-    private String           lastName;
-    
-    private Double           salary;
+	/**
+	 * First name of the employee
+	 */
+	@NotBlank
+	private String firstName;
 
-    @Reference
-    private EmployeeResource manager;
+	/**
+	 * Last name of the employee
+	 */
+	@NotBlank
+	@Size(max = 50)
+	private String lastName;
+
+	/**
+	 * Salary of the employee
+	 */
+	private Double salary;
+
+	/**
+	 * The employee's manager
+	 */
+	@Reference
+	private EmployeeResource manager;
 
 }

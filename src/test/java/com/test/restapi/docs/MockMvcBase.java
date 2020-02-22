@@ -143,6 +143,11 @@ public abstract class MockMvcBase<T, ID> {
 				getResourceMetadata().getPath(), id);
 	}
 
+	protected MockHttpServletRequestBuilder httpProfileResource() {
+		return get(configuration.getBasePath().getPath() + "{profile}{repository}",
+				"/profile", getResourceMetadata().getPath()).accept("application/schema+json");
+	}
+	
 	protected MockHttpServletRequestBuilder httpSearchResources() {
 		return get(configuration.getBasePath().getPath() + "{repository}/" + getSearchMapping(resourceClass).getPath(),
 				getResourceMetadata().getPath());
@@ -159,14 +164,6 @@ public abstract class MockMvcBase<T, ID> {
 
 	protected String getResourceItemIdParameter() {
 		return "{id}";
-	}
-
-	protected String getResourceItemPath(Class resourceClass) {
-		return getResourceCollectionPath(resourceClass) + "/" + getResourceItemIdParameter();
-	}
-
-	protected String getSearchResourcePath(Class resourceClass) {
-		return getResourceCollectionPath(resourceClass) + getSearchMapping(resourceClass).getPath().toString();
 	}
 
 	protected SearchResourceMappings getSearchMapping(Class resourceClass) {
