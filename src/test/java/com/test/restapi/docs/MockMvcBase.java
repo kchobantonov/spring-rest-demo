@@ -24,6 +24,7 @@ import org.springframework.data.rest.core.mapping.RepositoryResourceMappings;
 import org.springframework.data.rest.core.mapping.ResourceMetadata;
 import org.springframework.data.rest.core.mapping.SearchResourceMappings;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
@@ -36,6 +37,7 @@ import org.springframework.restdocs.snippet.Snippet;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.context.WebApplicationContext;
@@ -47,6 +49,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import capital.scalable.restdocs.AutoDocumentation;
 import capital.scalable.restdocs.section.SectionBuilder;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @ExtendWith({ RestDocumentationExtension.class, SpringExtension.class })
 @WithMockUser(username = "demo", password = "demo", roles = { "USER", "ADMIN" })
@@ -116,6 +119,40 @@ public abstract class MockMvcBase<T, ID> {
 		return conversionService.convert(id, idType);
 	}
 
+	protected MockHttpServletRequestBuilder httpGetResources() {
+		return get(configuration.getBasePath().getPath() + "{repository}", getResourceMetadata().getPath());
+	}
+
+	protected MockHttpServletRequestBuilder httpGetResource(ID id) {
+		return get(configuration.getBasePath().getPath() + "{repository}/" + getResourceItemIdParameter(),
+				getResourceMetadata().getPath(), id);
+	}
+
+	protected MockHttpServletRequestBuilder httpPatchResource(ID id) {
+		return patch(configuration.getBasePath().getPath() + "{repository}/" + getResourceItemIdParameter(),
+				getResourceMetadata().getPath(), id).contentType(MediaType.APPLICATION_JSON);
+	}
+
+	protected MockHttpServletRequestBuilder httpPutResource(ID id) {
+		return put(configuration.getBasePath().getPath() + "{repository}/" + getResourceItemIdParameter(),
+				getResourceMetadata().getPath(), id).contentType(MediaType.APPLICATION_JSON);
+	}
+
+	protected MockHttpServletRequestBuilder httpDeleteResource(ID id) {
+		return delete(configuration.getBasePath().getPath() + "{repository}/" + getResourceItemIdParameter(),
+				getResourceMetadata().getPath(), id);
+	}
+
+	protected MockHttpServletRequestBuilder httpSearchResources() {
+		return get(configuration.getBasePath().getPath() + "{repository}/" + getSearchMapping(resourceClass).getPath(),
+				getResourceMetadata().getPath());
+	}
+
+	protected MockHttpServletRequestBuilder httpPostResource() {
+		return post(configuration.getBasePath().getPath() + "{repository}", getResourceMetadata().getPath())
+				.contentType(MediaType.APPLICATION_JSON);
+	}
+
 	protected String getResourceCollectionPath(Class resourceClass) {
 		return configuration.getBasePath().getPath() + getResourceMetadata().getPath().toString();
 	}
@@ -145,8 +182,8 @@ public abstract class MockMvcBase<T, ID> {
 													 * , new TypeMapping() .mapSubtypes(Metadata.class, Metadata3.class)
 													 */))
 				.alwaysDo(commonDocumentation()).apply(springSecurity())
-				.apply(MockMvcRestDocumentation.documentationConfiguration(restDocumentation).uris().withScheme("http")
-						.withHost("localhost").withPort(8080).and().snippets()
+				.apply(MockMvcRestDocumentation.documentationConfiguration(restDocumentation).uris().withScheme("https")
+						.withHost("rest-api-server").withPort(443).and().snippets()
 						.withDefaults(CliDocumentation.curlRequest(), HttpDocumentation.httpRequest(),
 								HttpDocumentation.httpResponse(), AutoDocumentation.requestFields(),
 								AutoDocumentation.responseFields(), AutoDocumentation.pathParameters(),

@@ -120,14 +120,7 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/javax.interceptor/javax.interceptor-api -->
-<dependency>
-    <groupId>javax.interceptor</groupId>
-    <artifactId>javax.interceptor-api</artifactId>
-    <version>3.1</version>
-</dependency>
-		
+
 	</dependencies>
 
 	<build>
@@ -220,6 +213,14 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<extensions>true</extensions>
 				<executions>
+					<!-- 
+					add to the dependency if you want to enable this
+					<dependency>
+						<groupId>javax.interceptor</groupId>
+						<artifactId>javax.interceptor-api</artifactId>
+						<version>3.1</version>
+					</dependency>
+					
 					<execution>
 						<id>attach-javadocs</id>
 						<goals>
@@ -234,6 +235,7 @@
 							</tags>
 						</configuration>
 					</execution>
+					-->
 					<execution>
 						<id>generate-javadoc-json</id>
 						<phase>compile</phase>
