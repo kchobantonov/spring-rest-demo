@@ -1,4 +1,4 @@
-package com.test.restapi;
+package com.test.restapi.docs;
 
 import static capital.scalable.restdocs.jackson.JacksonResultHandlers.prepareJackson;
 import static capital.scalable.restdocs.response.ResponseModifyingPreprocessors.limitJsonArrayLength;
@@ -9,6 +9,8 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +37,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -43,20 +46,17 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import capital.scalable.restdocs.AutoDocumentation;
-import capital.scalable.restdocs.SnippetRegistry;
+import capital.scalable.restdocs.section.SectionBuilder;
 
 @ExtendWith({ RestDocumentationExtension.class, SpringExtension.class })
 @WithMockUser(username = "demo", password = "demo", roles = { "USER", "ADMIN" })
 @SpringBootTest
-public class MockMvcBase {
+public abstract class MockMvcBase<T, ID> {
 	@Autowired
 	private WebApplicationContext context;
 
 	@Autowired
 	protected ObjectMapper objectMapper;
-
-	/// @Autowired
-	// protected RestDocumentationContextProvider restDocumentation;
 
 	protected MockMvc mockMvc;
 
@@ -73,18 +73,40 @@ public class MockMvcBase {
 	@Qualifier("defaultConversionService")
 	protected ConversionService conversionService;
 
-	protected ResourceMetadata getResourceMetadata(Class resourceClass) {
+	protected Class<T> resourceClass;
+
+	public MockMvcBase(Class<T> resourceClass) {
+		this.resourceClass = resourceClass;
+	}
+
+	protected ResourceMetadata getResourceMetadata() {
 		return mappings.getMetadataFor(resourceClass);
 	}
 
-	protected <T> EntityModel<T> toResourceEntity(TypeReference<EntityModel<T>> type, MockHttpServletResponse response)
+	protected abstract TypeReference<EntityModel<T>> getTypeReference();
+
+	protected EntityModel<T> toResourceEntity(MockHttpServletResponse response)
 			throws UnsupportedEncodingException, JsonMappingException, JsonProcessingException {
 		String content = response.getContentAsString();
 
-		return objectMapper.readValue(content, type);
+		return objectMapper.readValue(content, getTypeReference());
 	}
 
-	protected <ID> ID getIdFromLocation(Class<?> resourceClass, MockHttpServletResponse response) {
+	protected ID getId(T resource) {
+		Method getIdMethod = persistentEntities.getRequiredPersistentEntity(resourceClass).getRequiredIdProperty()
+				.getRequiredGetter();
+		ReflectionUtils.makeAccessible(getIdMethod);
+		return (ID) ReflectionUtils.invokeMethod(getIdMethod, resource);
+	}
+
+	protected void setId(T resource, ID id) {
+		Method setIdMethod = persistentEntities.getRequiredPersistentEntity(resourceClass).getRequiredIdProperty()
+				.getRequiredSetter();
+		ReflectionUtils.makeAccessible(setIdMethod);
+		ReflectionUtils.invokeMethod(setIdMethod, resource, id);
+	}
+
+	protected ID getIdFromResponse(MockHttpServletResponse response) {
 		String location = response.getHeader("location");
 		String id = location.substring(location.lastIndexOf("/") + 1, location.length());
 
@@ -95,11 +117,15 @@ public class MockMvcBase {
 	}
 
 	protected String getResourceCollectionPath(Class resourceClass) {
-		return configuration.getBasePath().getPath() + getResourceMetadata(resourceClass).getPath().toString();
+		return configuration.getBasePath().getPath() + getResourceMetadata().getPath().toString();
+	}
+
+	protected String getResourceItemIdParameter() {
+		return "{id}";
 	}
 
 	protected String getResourceItemPath(Class resourceClass) {
-		return getResourceCollectionPath(resourceClass) + "/{id}";
+		return getResourceCollectionPath(resourceClass) + "/" + getResourceItemIdParameter();
 	}
 
 	protected String getSearchResourcePath(Class resourceClass) {
@@ -127,10 +153,8 @@ public class MockMvcBase {
 								AutoDocumentation.requestParameters(), AutoDocumentation.description(),
 								AutoDocumentation.methodAndPath(),
 								AutoDocumentation.sectionBuilder()
-										.snippetNames(SnippetRegistry.PATH_PARAMETERS,
-												SnippetRegistry.REQUEST_PARAMETERS, SnippetRegistry.REQUEST_FIELDS,
-												SnippetRegistry.RESPONSE_FIELDS)
-										.skipEmpty(true).build()))
+										.snippetNames(new ArrayList<>(SectionBuilder.DEFAULT_SNIPPETS)).skipEmpty(true)
+										.build()))
 				.build();
 	}
 

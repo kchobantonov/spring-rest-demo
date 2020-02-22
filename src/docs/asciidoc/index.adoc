@@ -19,8 +19,6 @@
 [[overview-http-verbs]]
 === HTTP verbs
 
-An example of static AsciiDoc.
-
 |===
 | Verb | Usage
 
@@ -29,6 +27,9 @@ An example of static AsciiDoc.
 
 | `POST`
 | Used to create a new resource
+
+| `PATCH`
+| Used to update an existing resource
 
 | `PUT`
 | Used to update an existing resource (idempotent)
@@ -120,4 +121,3 @@ Pagination response has following structure:
 = Resources
 
 include::employees.adoc[]
-include::srd-employees.adoc[]
