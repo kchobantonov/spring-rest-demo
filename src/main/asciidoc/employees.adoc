@@ -1,7 +1,7 @@
 [[resources-employees]]
 == Employees
 
-include::{snippets}/employee-resource-test/schema/schema.adoc[]
+include::{snippets}/employee-resource-test/schema/auto-section.adoc[]
 include::{snippets}/employee-resource-test/get-resources/auto-section.adoc[]
 include::{snippets}/employee-resource-test/get-resource/auto-section.adoc[]
 include::{snippets}/employee-resource-test/add-resource/auto-section.adoc[]

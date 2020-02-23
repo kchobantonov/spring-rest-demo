@@ -28,6 +28,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.test.restapi.entity.dozer.employee.EmployeeResource;
 import com.test.restapi.repository.dozer.employee.EmployeeResourceRepository;
 
+/**
+ * REST API endpoint to manage employee resources
+ * 
+ * @author kchobantonov
+ */
 @RepositoryRestController
 @RequestMapping("employees")
 public class EmployeeResourceController extends ResourceController<EmployeeResource> {
@@ -41,6 +46,11 @@ public class EmployeeResourceController extends ResourceController<EmployeeResou
 		super(pagedResourcesAssembler, repositories, config, entityLinks, headersPreparer, mappings);
 	}
 
+	/**
+	 * Get employee resources
+	 * 
+	 * @return the employees collection model
+	 */
 	@PreAuthorize("isAuthenticated()")
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
@@ -51,6 +61,12 @@ public class EmployeeResourceController extends ResourceController<EmployeeResou
 		return entitiesToResource(employees, pageable, assembler);
 	}
 
+	/**
+	 * Get employee resource specified by its id
+	 * 
+	 * @param id the employee id
+	 * @return the employee that matches the request
+	 */
 	@RequestMapping(value = "/{id:[0-9]+}", method = RequestMethod.GET)
 	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<EntityModel<EmployeeResource>> getItemResource(@PathVariable("id") Integer id,
