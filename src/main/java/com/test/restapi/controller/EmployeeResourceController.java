@@ -29,7 +29,7 @@ import com.test.restapi.entity.dozer.employee.EmployeeResource;
 import com.test.restapi.repository.dozer.employee.EmployeeResourceRepository;
 
 @RepositoryRestController
-@RequestMapping("/api/rest/v1/employees")
+@RequestMapping("employees")
 public class EmployeeResourceController extends ResourceController<EmployeeResource> {
 
 	@Autowired

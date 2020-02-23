@@ -15,8 +15,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
 @Configuration
-@Order( Ordered.LOWEST_PRECEDENCE )
+@Order(Ordered.LOWEST_PRECEDENCE)
 public class HalWebMvcConfigurer implements WebMvcConfigurer {
+
 	@Autowired
 	@Qualifier("halJacksonHttpMessageConverter")
 	private ObjectProvider<TypeConstrainedMappingJackson2HttpMessageConverter> halJacksonHttpMessageConverter;
@@ -34,4 +35,5 @@ public class HalWebMvcConfigurer implements WebMvcConfigurer {
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
 		resolvers.addAll(repositoryExporterHandlerAdapter.getCustomArgumentResolvers());
 	}
+
 }
