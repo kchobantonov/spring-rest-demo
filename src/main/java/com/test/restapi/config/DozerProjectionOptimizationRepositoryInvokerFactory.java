@@ -3,8 +3,13 @@ package com.test.restapi.config;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
+import javax.validation.Validator;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -33,10 +38,11 @@ public class DozerProjectionOptimizationRepositoryInvokerFactory implements Repo
 	private final RepositoryInvokerFactory delegate;
 	private final PluginRegistry<EntityLookup<?>, Class<?>> lookups;
 	private final ProjectionDefinitions projectionDefinitions;
+	private final Validator validator;
 
 	public DozerProjectionOptimizationRepositoryInvokerFactory(Repositories repositories,
 			RepositoryInvokerFactory delegate, List<? extends EntityLookup<?>> lookups,
-			ProjectionDefinitions projectionDefinitions) {
+			ProjectionDefinitions projectionDefinitions, Validator validator) {
 
 		Assert.notNull(delegate, "Delegate RepositoryInvokerFactory must not be null!");
 		Assert.notNull(lookups, "EntityLookups must not be null!");
@@ -47,6 +53,7 @@ public class DozerProjectionOptimizationRepositoryInvokerFactory implements Repo
 		this.delegate = delegate;
 		this.lookups = PluginRegistry.of(lookups);
 		this.projectionDefinitions = projectionDefinitions;
+		this.validator = validator;
 	}
 
 	/*
@@ -61,7 +68,7 @@ public class DozerProjectionOptimizationRepositoryInvokerFactory implements Repo
 		Optional<EntityLookup<?>> lookup = lookups.getPluginFor(domainType);
 
 		return new DozerProjectionOptimizationRepositoryInvoker(repositories.getEntityInformationFor(domainType),
-				delegate.getInvokerFor(domainType), lookup, projectionDefinitions);
+				delegate.getInvokerFor(domainType), lookup, projectionDefinitions, validator);
 	}
 
 	@RequiredArgsConstructor
@@ -71,6 +78,7 @@ public class DozerProjectionOptimizationRepositoryInvokerFactory implements Repo
 		private final @NonNull RepositoryInvoker delegate;
 		private final @NonNull Optional<EntityLookup<?>> lookup;
 		private final @NonNull ProjectionDefinitions projectionDefinitions;
+		private final @NonNull Validator validator;
 
 		/*
 		 * (non-Javadoc)
@@ -240,6 +248,12 @@ public class DozerProjectionOptimizationRepositoryInvokerFactory implements Repo
 		 */
 		@Override
 		public <T> T invokeSave(T object) {
+			Set<ConstraintViolation<Object>> result = validator.validate(object);
+
+			if (!result.isEmpty()) {
+				throw new ConstraintViolationException(result);
+			}
+
 			return delegate.invokeSave(object);
 		}
 

@@ -1,6 +1,8 @@
 package com.test.restapi.controller;
 
 import static org.springframework.data.rest.webmvc.ControllerUtils.EMPTY_RESOURCE_LIST;
+import static org.springframework.http.HttpMethod.PATCH;
+import static org.springframework.http.HttpMethod.PUT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +11,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import javax.annotation.PostConstruct;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -21,10 +24,13 @@ import org.springframework.data.repository.support.RepositoryInvoker;
 import org.springframework.data.repository.support.RepositoryInvokerFactory;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.core.event.AfterCreateEvent;
+import org.springframework.data.rest.core.event.AfterDeleteEvent;
+import org.springframework.data.rest.core.event.AfterSaveEvent;
 import org.springframework.data.rest.core.event.BeforeCreateEvent;
+import org.springframework.data.rest.core.event.BeforeDeleteEvent;
+import org.springframework.data.rest.core.event.BeforeSaveEvent;
 import org.springframework.data.rest.core.mapping.ResourceMappings;
 import org.springframework.data.rest.core.mapping.ResourceMetadata;
-import org.springframework.data.rest.core.mapping.ResourceType;
 import org.springframework.data.rest.core.mapping.SearchResourceMappings;
 import org.springframework.data.rest.core.support.SelfLinkProvider;
 import org.springframework.data.rest.webmvc.ControllerUtils;
@@ -37,6 +43,7 @@ import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.data.rest.webmvc.RestMediaTypes;
 import org.springframework.data.rest.webmvc.RootResourceInformation;
 import org.springframework.data.rest.webmvc.support.ETag;
+import org.springframework.data.rest.webmvc.support.ETagDoesntMatchException;
 import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
@@ -54,12 +61,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.Assert;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+@Validated
 public abstract class ResourceController<T, ID> implements ApplicationEventPublisherAware {
 	private static final EmbeddedWrappers WRAPPERS = new EmbeddedWrappers(false);
 
@@ -71,7 +81,7 @@ public abstract class ResourceController<T, ID> implements ApplicationEventPubli
 			RestMediaTypes.JSON_PATCH_JSON.toString(), //
 			MediaType.APPLICATION_JSON_VALUE);
 
-	private static final String ACCEPT_HEADER = "Accept";
+	protected static final String ACCEPT_HEADER = "Accept";
 	private static final String LINK_HEADER = "Link";
 
 	@Autowired
@@ -104,12 +114,6 @@ public abstract class ResourceController<T, ID> implements ApplicationEventPubli
 
 	@PostConstruct
 	void init() {
-		this.repositories = repositories;
-		this.entityLinks = entityLinks;
-		this.config = config;
-		this.headersPreparer = headersPreparer;
-		this.mappings = mappings;
-
 		List<TypeInformation<?>> arguments = ClassTypeInformation.from(getClass()) //
 				.getRequiredSuperTypeInformation(ResourceController.class)//
 				.getTypeArguments();
@@ -134,8 +138,18 @@ public abstract class ResourceController<T, ID> implements ApplicationEventPubli
 		this.publisher = publisher;
 	}
 
+	/**
+	 * <code>GET /{repository}</code> - Returns the collection resource (paged or
+	 * unpaged).
+	 *
+	 * @param pageable
+	 * @param assembler
+	 * @return
+	 * @throws ResourceNotFoundException
+	 * @throws HttpRequestMethodNotSupportedException
+	 */
 	@ResponseBody
-	public CollectionModel<?> getCollectionResource(Pageable pageable, PersistentEntityResourceAssembler assembler)
+	protected CollectionModel<?> getCollectionResource(Pageable pageable, PersistentEntityResourceAssembler assembler)
 			throws ResourceNotFoundException, HttpRequestMethodNotSupportedException {
 
 		if (null == invoker) {
@@ -154,28 +168,114 @@ public abstract class ResourceController<T, ID> implements ApplicationEventPubli
 	/**
 	 * <code>GET /{repository}/{id}</code> - Returns a single entity.
 	 *
-	 * @param resourceInformation
 	 * @param id
+	 * @param assembler
+	 * @param headers
 	 * @return
 	 * @throws HttpRequestMethodNotSupportedException
 	 */
-	public <S extends T> ResponseEntity<EntityModel<S>> getItemResource(ID id,
+	protected <S extends T> ResponseEntity<EntityModel<S>> getItemResource(@PathVariable("id") ID id,
 			final PersistentEntityResourceAssembler assembler, @RequestHeader HttpHeaders headers)
 			throws HttpRequestMethodNotSupportedException {
 
 		return entityToResource(getItemResource(id), headers, assembler);
 	}
 
+	/**
+	 * <code>POST /{repository}</code> - Creates a new entity instances from the
+	 * collection resource.
+	 *
+	 * @param payload
+	 * @param assembler
+	 * @param acceptHeader
+	 * @return
+	 * @throws HttpRequestMethodNotSupportedException
+	 */
 	@ResponseBody
-	public ResponseEntity<RepresentationModel<?>> postCollectionResource(RootResourceInformation resourceInformation,
-			PersistentEntityResource payload, PersistentEntityResourceAssembler assembler,
+	protected ResponseEntity<RepresentationModel<?>> postCollectionResource(@RequestBody @Valid T payload,
+			PersistentEntityResourceAssembler assembler,
 			@RequestHeader(value = ACCEPT_HEADER, required = false) String acceptHeader)
 			throws HttpRequestMethodNotSupportedException {
 
-		resourceInformation.verifySupportedMethod(HttpMethod.POST, ResourceType.COLLECTION);
+		return createAndReturn(payload, invoker, assembler, config.returnBodyOnCreate(acceptHeader));
+	}
 
-		return createAndReturn(payload.getContent(), resourceInformation.getInvoker(), assembler,
-				config.returnBodyOnCreate(acceptHeader));
+	/**
+	 * <code>PUT /{repository}/{id}</code> - Updates an existing entity or creates
+	 * one at exactly that place.
+	 *
+	 * @param payload
+	 * @param id
+	 * @param assembler
+	 * @param eTag
+	 * @param acceptHeader
+	 * @return
+	 * @throws HttpRequestMethodNotSupportedException
+	 */
+	protected ResponseEntity<? extends RepresentationModel<?>> putItemResource(@RequestBody @Valid T payload,
+			@PathVariable("id") ID id, PersistentEntityResourceAssembler assembler, ETag eTag,
+			@RequestHeader(value = ACCEPT_HEADER, required = false) String acceptHeader)
+			throws HttpRequestMethodNotSupportedException {
+
+		eTag.verify(persitentEntity, payload);
+
+		return saveAndReturn(payload, invoker, PUT, assembler, config.returnBodyOnUpdate(acceptHeader));
+	}
+
+	/**
+	 * <code>PATCH /{repository}/{id}</code> - Updates an existing entity or creates
+	 * one at exactly that place.
+	 *
+	 * @param payload
+	 * @param id
+	 * @param assembler
+	 * @param eTag,
+	 * @param acceptHeader
+	 * @return
+	 * @throws HttpRequestMethodNotSupportedException
+	 * @throws ResourceNotFoundException
+	 * @throws ETagDoesntMatchException
+	 */
+	protected ResponseEntity<RepresentationModel<?>> patchItemResource(
+			@RequestBody @Valid T payload,
+			@PathVariable("id") ID id, PersistentEntityResourceAssembler assembler,
+			ETag eTag, @RequestHeader(value = ACCEPT_HEADER, required = false) String acceptHeader)
+			throws HttpRequestMethodNotSupportedException, ResourceNotFoundException {
+
+		eTag.verify(persitentEntity, payload);
+
+		return saveAndReturn(payload, invoker, PATCH, assembler,
+				config.returnBodyOnUpdate(acceptHeader));
+	}
+
+	/**
+	 * <code>DELETE /{repository}/{id}</code> - Deletes the entity backing the item
+	 * resource.
+	 *
+	 * @param resourceInformation
+	 * @param id
+	 * @param eTag
+	 * @return
+	 * @throws ResourceNotFoundException
+	 * @throws HttpRequestMethodNotSupportedException
+	 * @throws ETagDoesntMatchException
+	 */
+	protected ResponseEntity<?> deleteItemResource(@PathVariable("id") ID id, ETag eTag)
+			throws ResourceNotFoundException, HttpRequestMethodNotSupportedException {
+
+		Optional<Object> domainObj = invoker.invokeFindById(id);
+
+		return domainObj.map(it -> {
+
+			eTag.verify(persitentEntity, it);
+
+			publisher.publishEvent(new BeforeDeleteEvent(it));
+			invoker.invokeDeleteById(persitentEntity.getIdentifierAccessor(it).getIdentifier());
+			publisher.publishEvent(new AfterDeleteEvent(it));
+
+			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+
+		}).orElseThrow(() -> new ResourceNotFoundException());
 	}
 
 	private static Class<?> resolveTypeParameter(List<TypeInformation<?>> arguments, int index,
@@ -245,11 +345,11 @@ public abstract class ResourceController<T, ID> implements ApplicationEventPubli
 		return new CollectionModel<EntityModel<Object>>(resources, getDefaultSelfLink());
 	}
 
-	protected Link getDefaultSelfLink() {
+	private Link getDefaultSelfLink() {
 		return new Link(ServletUriComponentsBuilder.fromCurrentRequest().build().toUriString());
 	}
 
-	protected boolean isModified(HttpHeadersPreparer headersPreparer, HttpHeaders requestHeaders, Object domainObject,
+	private boolean isModified(HttpHeadersPreparer headersPreparer, HttpHeaders requestHeaders, Object domainObject,
 			PersistentEntity<?, ?> entity) {
 		List<String> ifNoneMatch = requestHeaders.getIfNoneMatch();
 		ETag eTag = ifNoneMatch.isEmpty() ? ETag.NO_ETAG : ETag.from(ifNoneMatch.get(0));
@@ -335,4 +435,34 @@ public abstract class ResourceController<T, ID> implements ApplicationEventPubli
 
 		return invoker.invokeFindById(id);
 	}
+	
+	/**
+	 * Merges the given incoming object into the given domain object.
+	 *
+	 * @param domainObject
+	 * @param invoker
+	 * @param httpMethod
+	 * @return
+	 */
+	private ResponseEntity<RepresentationModel<?>> saveAndReturn(Object domainObject, RepositoryInvoker invoker,
+			HttpMethod httpMethod, PersistentEntityResourceAssembler assembler, boolean returnBody) {
+
+		publisher.publishEvent(new BeforeSaveEvent(domainObject));
+		Object obj = invoker.invokeSave(domainObject);
+		publisher.publishEvent(new AfterSaveEvent(obj));
+
+		PersistentEntityResource resource = assembler.toFullResource(obj);
+		HttpHeaders headers = headersPreparer.prepareHeaders(Optional.of(resource));
+
+		if (PUT.equals(httpMethod)) {
+			addLocationHeader(headers, assembler, obj);
+		}
+
+		if (returnBody) {
+			return ControllerUtils.toResponseEntity(HttpStatus.OK, headers, resource);
+		} else {
+			return ControllerUtils.toEmptyResponse(HttpStatus.NO_CONTENT, headers);
+		}
+	}
+
 }

@@ -3,6 +3,8 @@ package com.test.restapi.config;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
+import javax.validation.Validator;
+
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.data.rest.RepositoryRestProperties;
@@ -29,11 +31,13 @@ import com.github.dozermapper.springboot.autoconfigure.DozerProperties;
 @EnableConfigurationProperties({ DozerProperties.class, RepositoryRestProperties.class })
 public class DozerRepositoryRestMvcConfiguration extends RepositoryRestMvcConfiguration {
 	private final RepositoryRestProperties properties;
-
+	private final Validator validator;
+	
 	public DozerRepositoryRestMvcConfiguration(ApplicationContext context,
-			ObjectFactory<ConversionService> conversionService, RepositoryRestProperties properties) {
+			ObjectFactory<ConversionService> conversionService, RepositoryRestProperties properties, Validator validator) {
 		super(context, conversionService);
 		this.properties = properties;
+		this.validator = validator;
 	}
 
 	/*
@@ -53,7 +57,7 @@ public class DozerRepositoryRestMvcConfiguration extends RepositoryRestMvcConfig
 
 		return new DozerProjectionOptimizationRepositoryInvokerFactory(repositories(),
 				new DefaultRepositoryInvokerFactory(repositories(), defaultConversionService), getEntityLookups(),
-				repositoryRestConfiguration().getProjectionConfiguration());
+				repositoryRestConfiguration().getProjectionConfiguration(), validator);
 
 	}
 

@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 
 import com.test.restapi.entity.jpa.employee.Employee;
 import com.test.restapi.entity.jpa.employee.Gender;
+import com.test.restapi.validation.PostValidationGroup;
 
 import lombok.Data;
 
@@ -35,13 +36,13 @@ public class EmployeeResource {
 	/**
 	 * First name of the employee
 	 */
-	@NotBlank
+	@NotBlank(groups = PostValidationGroup.class)
 	private String firstName;
 
 	/**
 	 * Last name of the employee
 	 */
-	@NotBlank
+	@NotBlank()
 	@Size(max = 50)
 	private String lastName;
 

@@ -1,16 +1,20 @@
 package com.test.restapi.controller;
 
+import javax.validation.Valid;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -57,4 +61,13 @@ public class EmployeeResourceController extends ResourceController<EmployeeResou
 		return super.getItemResource(id, assembler, headers);
 	}
 
+	/*
+	@Override
+	@RequestMapping(method = RequestMethod.POST)
+	public ResponseEntity<RepresentationModel<?>> postCollectionResource(
+			@RequestBody @Valid EmployeeResource payload, PersistentEntityResourceAssembler assembler,
+			@RequestHeader(value = ACCEPT_HEADER, required = false) String acceptHeader)
+			throws HttpRequestMethodNotSupportedException {
+		return super.postCollectionResource(payload, assembler, acceptHeader);
+	}*/
 }
