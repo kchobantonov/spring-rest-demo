@@ -18,6 +18,11 @@ public abstract class SecuredAbstractResourceRepositoryTest<T, ID> extends Abstr
 	}
 
 	@Override
+	protected MockHttpServletRequestBuilder httpSearchResources() {
+		return super.httpSearchResources().with(userToken(username, password));
+	}
+
+	@Override
 	protected MockHttpServletRequestBuilder httpGetResources() {
 		return super.httpGetResources().with(userToken(username, password));
 	}
@@ -25,6 +30,11 @@ public abstract class SecuredAbstractResourceRepositoryTest<T, ID> extends Abstr
 	@Override
 	protected MockHttpServletRequestBuilder httpGetResource(ID id) {
 		return super.httpGetResource(id).with(userToken(username, password));
+	}
+
+	@Override
+	protected MockHttpServletRequestBuilder httpPatchResource(ID id) {
+		return super.httpPatchResource(id).with(userToken(username, password));
 	}
 
 	@Override
