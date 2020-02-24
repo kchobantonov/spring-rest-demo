@@ -19,6 +19,8 @@
 		<java.version>1.8</java.version>
 		<eclipselink.version>2.7.4</eclipselink.version>
 		<spring-auto-restdocs.version>2.0.7</spring-auto-restdocs.version>
+		<restdocs-api-spec.version>0.9.7</restdocs-api-spec.version>
+		<restdocs-spec.version>0.16</restdocs-spec.version>
 	</properties>
 
 	<dependencies>
@@ -121,6 +123,18 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>com.epages</groupId>
+			<artifactId>restdocs-api-spec</artifactId>
+			<version>${restdocs-api-spec.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.epages</groupId>
+			<artifactId>restdocs-api-spec-mockmvc</artifactId>
+			<version>${restdocs-api-spec.version}</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -213,29 +227,11 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<extensions>true</extensions>
 				<executions>
-					<!-- 
-					add to the dependency if you want to enable this
-					<dependency>
-						<groupId>javax.interceptor</groupId>
-						<artifactId>javax.interceptor-api</artifactId>
-						<version>3.1</version>
-					</dependency>
-					
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-						<configuration>
-							<tags>
-								<tag>
-									<name>title</name>
-									<placement>m</placement>
-								</tag>
-							</tags>
-						</configuration>
-					</execution>
-					-->
+					<!-- add to the dependency if you want to enable this <dependency> <groupId>javax.interceptor</groupId> 
+						<artifactId>javax.interceptor-api</artifactId> <version>3.1</version> </dependency> 
+						<execution> <id>attach-javadocs</id> <goals> <goal>jar</goal> </goals> <configuration> 
+						<tags> <tag> <name>title</name> <placement>m</placement> </tag> </tags> </configuration> 
+						</execution> -->
 					<execution>
 						<id>generate-javadoc-json</id>
 						<phase>compile</phase>
@@ -256,7 +252,24 @@
 					</execution>
 				</executions>
 			</plugin>
-
+			<plugin>
+				<groupId>com.github.berkleytechnologyservices.restdocs-spec</groupId>
+				<artifactId>restdocs-spec-maven-plugin</artifactId>
+				<version>${restdocs-spec.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<specification>OPENAPI_V3</specification>
+							<skip>${skipTests}</skip>
+							<host>rest-api-server:443</host>
+							<outputDirectory>${project.build.directory}/classes/static/docs</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

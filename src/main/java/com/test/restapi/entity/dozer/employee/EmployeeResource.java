@@ -1,11 +1,13 @@
 package com.test.restapi.entity.dozer.employee;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Reference;
 import org.springframework.data.dozer.annotation.DozerEntity;
+import org.springframework.validation.annotation.Validated;
 
 import com.test.restapi.entity.jpa.employee.Employee;
 import com.test.restapi.entity.jpa.employee.Gender;
@@ -17,6 +19,7 @@ import lombok.Data;
  */
 @DozerEntity(adaptedDomainClass = Employee.class)
 @Data
+@Validated
 public class EmployeeResource {
 	/**
 	 * Unique identifier of the employee
@@ -51,6 +54,7 @@ public class EmployeeResource {
 	 * The employee's manager
 	 */
 	@Reference
+	@Valid
 	private EmployeeResource manager;
 
 }
