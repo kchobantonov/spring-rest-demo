@@ -1,6 +1,5 @@
 package com.test.restapi.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.test.restapi.entity.dozer.employee.EmployeeResource;
-import com.test.restapi.repository.dozer.employee.EmployeeResourceRepository;
 
 /**
  * REST API endpoint to manage employee resources
@@ -28,9 +26,6 @@ import com.test.restapi.repository.dozer.employee.EmployeeResourceRepository;
 @RequestMapping("employees")
 public class EmployeeResourceController extends ResourceController<EmployeeResource, Integer> {
 
-	@Autowired
-	private EmployeeResourceRepository repository;
-	
 	/**
 	 * Get employee resources
 	 * 
