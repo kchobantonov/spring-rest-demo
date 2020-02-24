@@ -2,12 +2,13 @@ package com.test.restapi.controller;
 
 import static org.springframework.data.rest.webmvc.ControllerUtils.EMPTY_RESOURCE_LIST;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -62,7 +63,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public abstract class ResourceController<T, ID> implements ApplicationEventPublisherAware {
 	private static final EmbeddedWrappers WRAPPERS = new EmbeddedWrappers(false);
 
-	protected final PagedResourcesAssembler<Object> pagedResourcesAssembler;
+	@Autowired
+	private PagedResourcesAssembler<Object> pagedResourcesAssembler;
 
 	private static final List<String> ACCEPT_PATCH_HEADERS = Arrays.asList(//
 			RestMediaTypes.MERGE_PATCH_JSON.toString(), //
@@ -72,32 +74,36 @@ public abstract class ResourceController<T, ID> implements ApplicationEventPubli
 	private static final String ACCEPT_HEADER = "Accept";
 	private static final String LINK_HEADER = "Link";
 
-	protected final Repositories repositories;
-	protected final RepositoryEntityLinks entityLinks;
-	protected final RepositoryRestConfiguration config;
-	protected final HttpHeadersPreparer headersPreparer;
-	protected final ResourceMappings mappings;
+	@Autowired
+	private Repositories repositories;
 
-	protected final PersistentEntity<T, ?> persitentEntity;
-	protected final Class<T> domainType;
-	protected final ResourceMetadata metadata;
-	protected final RepositoryInvoker invoker;
+	@Autowired
+	private RepositoryEntityLinks entityLinks;
+
+	@Autowired
+	private RepositoryRestConfiguration config;
+
+	@Autowired
+	private HttpHeadersPreparer headersPreparer;
+
+	@Autowired
+	private ResourceMappings mappings;
+
+	@Autowired
+	private RepositoryInvokerFactory invokerFactory;
+
+	private PersistentEntity<T, ?> persitentEntity;
+	private Class<T> domainType;
+	private ResourceMetadata metadata;
+	private RepositoryInvoker invoker;
 
 	private ApplicationEventPublisher publisher;
 
 	@Autowired
 	private SelfLinkProvider selfLinkProvider;
 
-	@Autowired
-	private RepositoryInvokerFactory invokerFactory;
-
-	public ResourceController(PagedResourcesAssembler<Object> pagedResourcesAssembler, Repositories repositories,
-			RepositoryRestConfiguration config, RepositoryEntityLinks entityLinks, HttpHeadersPreparer headersPreparer,
-			ResourceMappings mappings) {
-
-		Assert.notNull(pagedResourcesAssembler, "PagedResourcesAssembler must not be null!");
-
-		this.pagedResourcesAssembler = pagedResourcesAssembler;
+	@PostConstruct
+	void init() {
 		this.repositories = repositories;
 		this.entityLinks = entityLinks;
 		this.config = config;

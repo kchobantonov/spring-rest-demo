@@ -12,10 +12,10 @@ import com.test.restapi.entity.jpa.employee.Gender;
 
 @TestMethodOrder(OrderAnnotation.class)
 @TestInstance(Lifecycle.PER_CLASS)
-public class EmployeeResourceTest extends AbstractResourceRepositoryTest<EmployeeResource, Integer> {
+public class EmployeeResourceTest extends SecuredAbstractResourceRepositoryTest<EmployeeResource, Integer> {
 
 	public EmployeeResourceTest() {
-		super(EmployeeResource.class, createExample());
+		super("demo", "demo", EmployeeResource.class, createExample());
 	}
 
 	@Override

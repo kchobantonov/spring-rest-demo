@@ -1,6 +1,7 @@
 package com.test.restapi.docs;
 
 import static capital.scalable.restdocs.jackson.JacksonResultHandlers.prepareJackson;
+import static capital.scalable.restdocs.misc.AuthorizationSnippet.documentAuthorization;
 import static capital.scalable.restdocs.response.ResponseModifyingPreprocessors.limitJsonArrayLength;
 import static capital.scalable.restdocs.response.ResponseModifyingPreprocessors.replaceBinaryContent;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -8,10 +9,16 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Base64;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,10 +42,10 @@ import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
 import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
 import org.springframework.restdocs.operation.preprocess.OperationResponsePreprocessor;
 import org.springframework.restdocs.snippet.Snippet;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.context.WebApplicationContext;
@@ -50,12 +57,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import capital.scalable.restdocs.AutoDocumentation;
 import capital.scalable.restdocs.section.SectionBuilder;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @ExtendWith({ RestDocumentationExtension.class, SpringExtension.class })
-@WithMockUser(username = "demo", password = "demo", roles = { "USER", "ADMIN" })
 @SpringBootTest
 public abstract class MockMvcBase<T, ID> {
+
+	private static final String DEFAULT_AUTHORIZATION = "Resource is public.";
+
 	@Autowired
 	private WebApplicationContext context;
 
@@ -145,10 +153,10 @@ public abstract class MockMvcBase<T, ID> {
 	}
 
 	protected MockHttpServletRequestBuilder httpProfileResource() {
-		return get(configuration.getBasePath().getPath() + "{profile}{repository}",
-				"/profile", getResourceMetadata().getPath()).accept("application/schema+json");
+		return get(configuration.getBasePath().getPath() + "{profile}{repository}", "/profile",
+				getResourceMetadata().getPath()).accept("application/schema+json");
 	}
-	
+
 	protected MockHttpServletRequestBuilder httpSearchResources() {
 		return get(configuration.getBasePath().getPath() + "{repository}/" + getSearchMapping(resourceClass).getPath(),
 				getResourceMetadata().getPath());
@@ -187,10 +195,31 @@ public abstract class MockMvcBase<T, ID> {
 								AutoDocumentation.responseFields(), AutoDocumentation.pathParameters(),
 								AutoDocumentation.requestParameters(), AutoDocumentation.description(),
 								AutoDocumentation.methodAndPath(),
+								AutoDocumentation.authorization(DEFAULT_AUTHORIZATION),
 								AutoDocumentation.sectionBuilder()
 										.snippetNames(new ArrayList<>(SectionBuilder.DEFAULT_SNIPPETS)).skipEmpty(true)
 										.build()))
 				.build();
+	}
+
+	protected RequestPostProcessor userToken(String username, String password) {
+		return request -> {
+			// If the tests requires setup logic for users, you can place it here.
+			// Authorization headers or cookies for users should be added here as well.
+			String accessToken;
+			try {
+				accessToken = getAccessToken(username, password);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			request.addHeader("Authorization", "Basic " + accessToken);
+			return documentAuthorization(request, "User access token required.");
+		};
+	}
+
+	private String getAccessToken(String username, String password) throws Exception {
+		byte[] encoded = Base64.getEncoder().encode((username + ":" + password).getBytes());
+		return new String(encoded);
 	}
 
 	protected RestDocumentationResultHandler commonDocumentation(Snippet... snippets) {

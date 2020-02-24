@@ -1,20 +1,10 @@
 package com.test.restapi.controller;
 
-import java.io.Serializable;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.support.Repositories;
-import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
-import org.springframework.data.rest.core.mapping.ResourceMappings;
-import org.springframework.data.rest.webmvc.HttpHeadersPreparer;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
-import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
-import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpHeaders;
@@ -25,7 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.test.restapi.entity.dozer.employee.EmployeeResource;
 import com.test.restapi.repository.dozer.employee.EmployeeResourceRepository;
@@ -41,13 +30,7 @@ public class EmployeeResourceController extends ResourceController<EmployeeResou
 
 	@Autowired
 	private EmployeeResourceRepository repository;
-
-	public EmployeeResourceController(PagedResourcesAssembler<Object> pagedResourcesAssembler,
-			Repositories repositories, RepositoryRestConfiguration config, RepositoryEntityLinks entityLinks,
-			HttpHeadersPreparer headersPreparer, ResourceMappings mappings) {
-		super(pagedResourcesAssembler, repositories, config, entityLinks, headersPreparer, mappings);
-	}
-
+	
 	/**
 	 * Get employee resources
 	 * 
@@ -74,7 +57,7 @@ public class EmployeeResourceController extends ResourceController<EmployeeResou
 	@PreAuthorize("isAuthenticated()")
 	@Override
 	public <S extends EmployeeResource> ResponseEntity<EntityModel<S>> getItemResource(@PathVariable("id") Integer id,
-			PersistentEntityResourceAssembler assembler, HttpHeaders headers)
+			PersistentEntityResourceAssembler assembler, @RequestHeader HttpHeaders headers)
 			throws HttpRequestMethodNotSupportedException {
 		return super.getItemResource(id, assembler, headers);
 	}
