@@ -20,11 +20,12 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Base64;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.mapping.context.PersistentEntities;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
@@ -60,6 +61,8 @@ import capital.scalable.restdocs.section.SectionBuilder;
 
 @ExtendWith({ RestDocumentationExtension.class, SpringExtension.class })
 @SpringBootTest
+@AutoConfigureMockMvc
+@Import(MockMvcDocConfiguration.class)
 public abstract class MockMvcBase<T, ID> {
 
 	private static final String DEFAULT_AUTHORIZATION = "Resource is public.";
@@ -70,6 +73,7 @@ public abstract class MockMvcBase<T, ID> {
 	@Autowired
 	protected ObjectMapper objectMapper;
 
+	@Autowired
 	protected MockMvc mockMvc;
 
 	@Autowired
@@ -179,29 +183,6 @@ public abstract class MockMvcBase<T, ID> {
 		return mappings.getSearchResourceMappings(resourceClass);
 	}
 
-	@BeforeEach
-	public void setUp(WebApplicationContext webApplicationContext, RestDocumentationContextProvider restDocumentation)
-			throws Exception {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
-				.alwaysDo(
-						prepareJackson(objectMapper /*
-													 * , new TypeMapping() .mapSubtypes(Metadata.class, Metadata3.class)
-													 */))
-				.alwaysDo(commonDocumentation()).apply(springSecurity())
-				.apply(MockMvcRestDocumentation.documentationConfiguration(restDocumentation).uris().withScheme("https")
-						.withHost("rest-api-server").withPort(443).and().snippets()
-						.withDefaults(CliDocumentation.curlRequest(), HttpDocumentation.httpRequest(),
-								HttpDocumentation.httpResponse(), AutoDocumentation.requestFields(),
-								AutoDocumentation.responseFields(), AutoDocumentation.pathParameters(),
-								AutoDocumentation.requestParameters(), AutoDocumentation.description(),
-								AutoDocumentation.methodAndPath(),
-								AutoDocumentation.authorization(DEFAULT_AUTHORIZATION),
-								AutoDocumentation.sectionBuilder()
-										.snippetNames(new ArrayList<>(SectionBuilder.DEFAULT_SNIPPETS)).skipEmpty(true)
-										.build()))
-				.build();
-	}
-
 	protected RequestPostProcessor userToken(String username, String password) {
 		return request -> {
 			// If the tests requires setup logic for users, you can place it here.
@@ -222,12 +203,5 @@ public abstract class MockMvcBase<T, ID> {
 		return new String(encoded);
 	}
 
-	protected RestDocumentationResultHandler commonDocumentation(Snippet... snippets) {
-		return document("{class-name}/{method-name}", commonResponsePreprocessor(), snippets);
-	}
-
-	protected OperationResponsePreprocessor commonResponsePreprocessor() {
-		return preprocessResponse(replaceBinaryContent(), limitJsonArrayLength(objectMapper), prettyPrint());
-	}
 
 }
