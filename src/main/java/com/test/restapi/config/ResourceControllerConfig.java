@@ -10,7 +10,6 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.repository.support.Repositories;
 import org.springframework.data.rest.core.Path;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
@@ -19,6 +18,7 @@ import org.springframework.data.rest.core.mapping.ResourceMetadata;
 import org.springframework.data.rest.webmvc.BasePathAwareHandlerMapping;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.support.DelegatingHandlerMapping;
+import org.springframework.data.rest.webmvc.support.ETag;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.http.HttpHeaders;
@@ -53,16 +53,20 @@ public class ResourceControllerConfig {
 
 			ResourceMetadata resourceMetadata = repositoryResourceMappings.getMetadataFor(domainType);
 
+			if (resourceMetadata == null) {
+				continue;
+			}
+
+			Path path = resourceMetadata.getPath();
+
 			Method getCollectionResourceMethod = ReflectionUtils.findMethod(handlerClass, "getCollectionResource",
 					new Class[] { Pageable.class, PersistentEntityResourceAssembler.class });
 
 			if (getCollectionResourceMethod != null
-					&& !getCollectionResourceMethod.getDeclaringClass().equals(ResourceController.class)
-					&& resourceMetadata != null) {
+					&& !getCollectionResourceMethod.getDeclaringClass().equals(ResourceController.class)) {
 
 				RequestMappingInfo info = RequestMappingInfo
-						.paths(new Path(repositoryRestConfiguration.getBasePath().toString())
-								.slash(resourceMetadata.getPath()).toString())
+						.paths(new Path(repositoryRestConfiguration.getBasePath().toString()).slash(path).toString())
 						.methods(RequestMethod.GET).build();
 				mapping.registerMapping(info, handler, getCollectionResourceMethod);
 			}
@@ -71,18 +75,75 @@ public class ResourceControllerConfig {
 					new Class[] { domainIdType, PersistentEntityResourceAssembler.class, HttpHeaders.class });
 
 			if (getItemResourceMethod != null
-					&& !getItemResourceMethod.getDeclaringClass().equals(ResourceController.class)
-					&& resourceMetadata != null) {
+					&& !getItemResourceMethod.getDeclaringClass().equals(ResourceController.class)) {
 
-				RequestMappingInfo info = RequestMappingInfo.paths(
-						new Path(repositoryRestConfiguration.getBasePath().toString()).slash(resourceMetadata.getPath()
-								.slash("{id" + (handler.getIdPathVariableRegex() != null
-										? ":" + handler.getIdPathVariableRegex()
-										: "") + "}"))
-								.toString())
+				RequestMappingInfo info = RequestMappingInfo
+						.paths(new Path(repositoryRestConfiguration.getBasePath().toString()).slash(path.slash("{id"
+								+ (handler.getIdPathVariableRegex() != null ? ":" + handler.getIdPathVariableRegex()
+										: "")
+								+ "}")).toString())
 						.methods(RequestMethod.GET).build();
 				mapping.registerMapping(info, handler, getItemResourceMethod);
 			}
+
+			Method postCollectionResourceMethod = ReflectionUtils.findMethod(handlerClass, "postCollectionResource",
+					new Class[] { domainType, PersistentEntityResourceAssembler.class, String.class });
+
+			if (postCollectionResourceMethod != null
+					&& !postCollectionResourceMethod.getDeclaringClass().equals(ResourceController.class)) {
+
+				RequestMappingInfo info = RequestMappingInfo
+						.paths(new Path(repositoryRestConfiguration.getBasePath().toString()).slash(path).toString())
+						.methods(RequestMethod.POST).build();
+				mapping.registerMapping(info, handler, postCollectionResourceMethod);
+			}
+			
+			Method putItemResourceMethod = ReflectionUtils.findMethod(handlerClass, "putItemResource",
+					new Class[] { domainType, domainIdType, PersistentEntityResourceAssembler.class, ETag.class, String.class });
+
+			if (putItemResourceMethod != null
+					&& !putItemResourceMethod.getDeclaringClass().equals(ResourceController.class)) {
+
+				RequestMappingInfo info = RequestMappingInfo
+						.paths(new Path(repositoryRestConfiguration.getBasePath().toString()).slash(path.slash("{id"
+								+ (handler.getIdPathVariableRegex() != null ? ":" + handler.getIdPathVariableRegex()
+										: "")
+								+ "}")).toString())						
+						.methods(RequestMethod.PUT).build();
+				mapping.registerMapping(info, handler, putItemResourceMethod);
+			}
+			
+			Method patchItemResourceMethod = ReflectionUtils.findMethod(handlerClass, "patchItemResource",
+					new Class[] { domainType, domainIdType, PersistentEntityResourceAssembler.class, ETag.class, String.class });
+
+			if (patchItemResourceMethod != null
+					&& !patchItemResourceMethod.getDeclaringClass().equals(ResourceController.class)) {
+
+				RequestMappingInfo info = RequestMappingInfo
+						.paths(new Path(repositoryRestConfiguration.getBasePath().toString()).slash(path.slash("{id"
+								+ (handler.getIdPathVariableRegex() != null ? ":" + handler.getIdPathVariableRegex()
+										: "")
+								+ "}")).toString())
+						.methods(RequestMethod.PATCH).build();
+				mapping.registerMapping(info, handler, patchItemResourceMethod);
+			}
+			
+			Method deleteItemResourceMethod = ReflectionUtils.findMethod(handlerClass, "deleteItemResource",
+					new Class[] { domainIdType, ETag.class });
+
+			if (deleteItemResourceMethod != null
+					&& !deleteItemResourceMethod.getDeclaringClass().equals(ResourceController.class)) {
+
+				RequestMappingInfo info = RequestMappingInfo
+						.paths(new Path(repositoryRestConfiguration.getBasePath().toString()).slash(path.slash("{id"
+								+ (handler.getIdPathVariableRegex() != null ? ":" + handler.getIdPathVariableRegex()
+										: "")
+								+ "}")).toString())
+						.methods(RequestMethod.DELETE).build();
+				mapping.registerMapping(info, handler, deleteItemResourceMethod);
+			}
+			
+			
 
 		}
 	}
