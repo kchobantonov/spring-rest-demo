@@ -112,6 +112,10 @@ public abstract class ResourceController<T, ID> implements ApplicationEventPubli
 	@Autowired
 	private SelfLinkProvider selfLinkProvider;
 
+	public String getIdPathVariableRegex() {
+		return null;
+	}
+
 	@PostConstruct
 	void init() {
 		List<TypeInformation<?>> arguments = ClassTypeInformation.from(getClass()) //
@@ -236,16 +240,14 @@ public abstract class ResourceController<T, ID> implements ApplicationEventPubli
 	 * @throws ResourceNotFoundException
 	 * @throws ETagDoesntMatchException
 	 */
-	protected ResponseEntity<RepresentationModel<?>> patchItemResource(
-			@RequestBody @Valid T payload,
-			@PathVariable("id") ID id, PersistentEntityResourceAssembler assembler,
-			ETag eTag, @RequestHeader(value = ACCEPT_HEADER, required = false) String acceptHeader)
+	protected ResponseEntity<RepresentationModel<?>> patchItemResource(@RequestBody @Valid T payload,
+			@PathVariable("id") ID id, PersistentEntityResourceAssembler assembler, ETag eTag,
+			@RequestHeader(value = ACCEPT_HEADER, required = false) String acceptHeader)
 			throws HttpRequestMethodNotSupportedException, ResourceNotFoundException {
 
 		eTag.verify(persitentEntity, payload);
 
-		return saveAndReturn(payload, invoker, PATCH, assembler,
-				config.returnBodyOnUpdate(acceptHeader));
+		return saveAndReturn(payload, invoker, PATCH, assembler, config.returnBodyOnUpdate(acceptHeader));
 	}
 
 	/**
@@ -435,7 +437,7 @@ public abstract class ResourceController<T, ID> implements ApplicationEventPubli
 
 		return invoker.invokeFindById(id);
 	}
-	
+
 	/**
 	 * Merges the given incoming object into the given domain object.
 	 *

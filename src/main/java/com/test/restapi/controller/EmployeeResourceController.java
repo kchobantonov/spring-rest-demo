@@ -1,23 +1,17 @@
 package com.test.restapi.controller;
 
-import javax.validation.Valid;
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.test.restapi.entity.dozer.employee.EmployeeResource;
 
@@ -27,9 +21,13 @@ import com.test.restapi.entity.dozer.employee.EmployeeResource;
  * @author kchobantonov
  */
 @RepositoryRestController
-@RequestMapping("employees")
 public class EmployeeResourceController extends ResourceController<EmployeeResource, Integer> {
-
+	
+	@Override
+	public String getIdPathVariableRegex() {
+		return "[0-9]+";
+	}
+	
 	/**
 	 * Get employee resources
 	 * 
@@ -38,7 +36,6 @@ public class EmployeeResourceController extends ResourceController<EmployeeResou
 	 * @throws ResourceNotFoundException
 	 */
 	@PreAuthorize("isAuthenticated()")
-	@RequestMapping(method = RequestMethod.GET)
 	@Override
 	public CollectionModel<?> getCollectionResource(Pageable pageable,
 			final PersistentEntityResourceAssembler assembler)
@@ -52,7 +49,6 @@ public class EmployeeResourceController extends ResourceController<EmployeeResou
 	 * @param id the employee id
 	 * @return the employee that matches the request
 	 */
-	@RequestMapping(value = "/{id:[0-9]+}", method = RequestMethod.GET)
 	@PreAuthorize("isAuthenticated()")
 	@Override
 	public <S extends EmployeeResource> ResponseEntity<EntityModel<S>> getItemResource(@PathVariable("id") Integer id,
