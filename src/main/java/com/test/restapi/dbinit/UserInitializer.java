@@ -37,7 +37,7 @@ public class UserInitializer {
 	private List<Person> readUsers() throws Exception {
 		ClassPathResource resource = new ClassPathResource("people.csv");
 
-		Scanner scanner = new Scanner(resource.getInputStream());
+		Scanner scanner = new Scanner(resource.getInputStream(), "UTF-8");
 		String line = scanner.nextLine();
 		scanner.close();
 

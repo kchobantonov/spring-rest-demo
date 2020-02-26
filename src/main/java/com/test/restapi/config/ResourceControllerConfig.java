@@ -37,7 +37,7 @@ public class ResourceControllerConfig {
 			RepositoryRestConfiguration repositoryRestConfiguration) {
 
 		Collection<ResourceController> handlers = factory.getBeansOfType(ResourceController.class).values();
-		BasePathAwareHandlerMapping mapping = ((BasePathAwareHandlerMapping) restHandlerMapping.getDelegates().get(1));
+		BasePathAwareHandlerMapping mapping = (BasePathAwareHandlerMapping) restHandlerMapping.getDelegates().get(1);
 
 		for (ResourceController handler : handlers) {
 			Class<?> handlerClass = AopUtils.getTargetClass(handler);

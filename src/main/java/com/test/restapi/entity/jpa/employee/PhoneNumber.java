@@ -1,6 +1,7 @@
 package com.test.restapi.entity.jpa.employee;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -104,16 +105,20 @@ public class PhoneNumber implements Serializable {
 			this.type = type;
 		}
 
-		public boolean equals(Object other) {
-			if (other instanceof ID) {
-				final ID otherID = (ID) other;
-				return otherID.id.equals(id) && otherID.type.equals(type);
-			}
-			return false;
+		@Override
+		public int hashCode() {
+			return Objects.hash(id, type);
 		}
 
-		public int hashCode() {
-			return super.hashCode();
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (!(obj instanceof ID))
+				return false;
+			ID other = (ID) obj;
+			return Objects.equals(id, other.id) && Objects.equals(type, other.type);
 		}
+
 	}
 }

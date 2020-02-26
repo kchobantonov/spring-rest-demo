@@ -40,7 +40,6 @@ import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.ProfileController;
 import org.springframework.data.rest.webmvc.ProfileResourceProcessor;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
-import org.springframework.data.rest.webmvc.RestMediaTypes;
 import org.springframework.data.rest.webmvc.RootResourceInformation;
 import org.springframework.data.rest.webmvc.support.ETag;
 import org.springframework.data.rest.webmvc.support.ETagDoesntMatchException;
@@ -59,7 +58,6 @@ import org.springframework.hateoas.server.core.EmbeddedWrappers;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -76,13 +74,7 @@ public abstract class ResourceController<T, ID> implements ApplicationEventPubli
 	@Autowired
 	private PagedResourcesAssembler<Object> pagedResourcesAssembler;
 
-	private static final List<String> ACCEPT_PATCH_HEADERS = Arrays.asList(//
-			RestMediaTypes.MERGE_PATCH_JSON.toString(), //
-			RestMediaTypes.JSON_PATCH_JSON.toString(), //
-			MediaType.APPLICATION_JSON_VALUE);
-
 	protected static final String ACCEPT_HEADER = "Accept";
-	private static final String LINK_HEADER = "Link";
 
 	@Autowired
 	private Repositories repositories;
@@ -402,7 +394,7 @@ public abstract class ResourceController<T, ID> implements ApplicationEventPubli
 				.ofNullable(returnBody ? assembler.toFullResource(savedObject) : null);
 
 		HttpHeaders headers = headersPreparer.prepareHeaders(resource);
-		addLocationHeader(headers, assembler, savedObject);
+		addLocationHeader(headers, savedObject);
 
 		return ControllerUtils.toResponseEntity(HttpStatus.CREATED, headers, resource);
 	}
@@ -413,10 +405,9 @@ public abstract class ResourceController<T, ID> implements ApplicationEventPubli
 	 * created as self link.
 	 *
 	 * @param headers   must not be {@literal null}.
-	 * @param assembler must not be {@literal null}.
 	 * @param source    must not be {@literal null}.
 	 */
-	private void addLocationHeader(HttpHeaders headers, PersistentEntityResourceAssembler assembler, Object source) {
+	private void addLocationHeader(HttpHeaders headers, Object source) {
 
 		String selfLink = selfLinkProvider.createSelfLinkFor(source).withSelfRel().expand().getHref();
 		headers.setLocation(UriTemplate.of(selfLink).expand());
@@ -457,7 +448,7 @@ public abstract class ResourceController<T, ID> implements ApplicationEventPubli
 		HttpHeaders headers = headersPreparer.prepareHeaders(Optional.of(resource));
 
 		if (PUT.equals(httpMethod)) {
-			addLocationHeader(headers, assembler, obj);
+			addLocationHeader(headers, obj);
 		}
 
 		if (returnBody) {
