@@ -1,6 +1,5 @@
 package com.test.restapi.config;
 
-import static java.util.Arrays.asList;
 import static org.springframework.data.util.Optionals.toStream;
 
 import java.lang.reflect.Method;
