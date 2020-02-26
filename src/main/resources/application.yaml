@@ -14,4 +14,8 @@ spring:
 dozer:
   mapping-files:
   - classpath:dozer/security/person.dozer.xml    
-  - classpath:dozer/employee/employee.dozer.xml  
+  - classpath:dozer/employee/employee.dozer.xml
+
+logging:
+  level:
+      com.test.restapi.error: WARN
