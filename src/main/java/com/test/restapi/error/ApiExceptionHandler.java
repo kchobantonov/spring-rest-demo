@@ -69,7 +69,6 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	@ResponseBody
 	public ResponseEntity<ApiErrorResponse> doResolveException(HttpServletRequest request, Exception e) {
-		log.error("Request raised an Exception", e);
 
 		List<ValidationError> errors = extractErrors(e);
 
@@ -90,6 +89,14 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		errorBuilder.errors(errors);
 		errorBuilder.trace(isIncludeStackTrace(request, MediaType.ALL) ? toStackTrace(e) : null);
 		errorBuilder.path(request.getRequestURI());
+
+		if (errorStatus.is1xxInformational() || errorStatus.is2xxSuccessful() || errorStatus.is3xxRedirection()) {
+			log.debug("Request raised an Exception", e);
+		} else if (errorStatus.is4xxClientError()) {
+			log.info("Request raised an Exception", e);
+		} else {
+			log.error("Request raised an Exception", e);
+		}
 
 		return new ResponseEntity<>(errorBuilder.build(), errorStatus);
 	}
@@ -181,7 +188,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		if (StringUtils.isEmpty(violation.getMessageTemplate()) || violation.getLeafBean() == null) {
 			return violation.getMessage();
 		}
-		
+
 		return messageSourceAccessor.getMessage(violation.getMessageTemplate(),
 				new Object[] { violation.getLeafBean().getClass().getSimpleName(),
 						violation.getPropertyPath().toString(), violation.getInvalidValue() },
