@@ -21,6 +21,9 @@
 		<spring-auto-restdocs.version>2.0.7</spring-auto-restdocs.version>
 		<restdocs-api-spec.version>0.9.7</restdocs-api-spec.version>
 		<restdocs-spec.version>0.16</restdocs-spec.version>
+		<jacoco.version>0.8.5</jacoco.version>
+		<spotbugs.version>3.1.12.2</spotbugs.version>
+		<pmd.version>3.13.0</pmd.version>
 	</properties>
 
 	<dependencies>
@@ -137,6 +140,24 @@
 		</dependency>
 	</dependencies>
 
+	<reporting>
+		<plugins>
+			<!-- https://spotbugs.github.io/ -->
+			<!-- https://spotbugs.github.io/spotbugs-maven-plugin/usage.html -->
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>${spotbugs.version}</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>${pmd.version}</version>
+			</plugin>
+		</plugins>
+	</reporting>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -154,10 +175,12 @@
 							<backend>html</backend>
 							<doctype>book</doctype>
 							<attributes>
-								<snippets>${project.build.directory}/generated-snippets</snippets>
+								<snippets>${project.build.directory}/generated-snippets
+								</snippets>
 							</attributes>
 							<sourceDirectory>src/main/asciidoc</sourceDirectory>
-							<outputDirectory>${project.build.directory}/generated-docs</outputDirectory>
+							<outputDirectory>${project.build.directory}/generated-docs
+							</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
@@ -183,10 +206,12 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.outputDirectory}/public</outputDirectory>
+							<outputDirectory>${project.build.outputDirectory}/public
+							</outputDirectory>
 							<resources>
 								<resource>
-									<directory>${project.build.directory}/generated-docs</directory>
+									<directory>${project.build.directory}/generated-docs
+									</directory>
 								</resource>
 							</resources>
 						</configuration>
@@ -198,10 +223,12 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.basedir}/generated-docs</outputDirectory>
+							<outputDirectory>${project.basedir}/generated-docs
+							</outputDirectory>
 							<resources>
 								<resource>
-									<directory>${project.build.directory}/generated-docs</directory>
+									<directory>${project.build.directory}/generated-docs
+									</directory>
 									<includes>
 										<include>index.html</include>
 									</includes>
@@ -239,13 +266,15 @@
 							<goal>javadoc-no-fork</goal>
 						</goals>
 						<configuration>
-							<doclet>capital.scalable.restdocs.jsondoclet.ExtractDocumentationAsJsonDoclet</doclet>
+							<doclet>capital.scalable.restdocs.jsondoclet.ExtractDocumentationAsJsonDoclet
+							</doclet>
 							<docletArtifact>
 								<groupId>capital.scalable</groupId>
 								<artifactId>${json-doclet.artifactId}</artifactId>
 								<version>${spring-auto-restdocs.version}</version>
 							</docletArtifact>
-							<reportOutputDirectory>${project.build.directory}</reportOutputDirectory>
+							<reportOutputDirectory>${project.build.directory}
+							</reportOutputDirectory>
 							<useStandardDocletOptions>false</useStandardDocletOptions>
 							<show>package</show>
 						</configuration>
@@ -253,7 +282,8 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>com.github.berkleytechnologyservices.restdocs-spec</groupId>
+				<groupId>com.github.berkleytechnologyservices.restdocs-spec
+				</groupId>
 				<artifactId>restdocs-spec-maven-plugin</artifactId>
 				<version>${restdocs-spec.version}</version>
 				<executions>
@@ -265,7 +295,8 @@
 							<specification>OPENAPI_V3</specification>
 							<skip>${skipTests}</skip>
 							<host>rest-api-server:443</host>
-							<outputDirectory>${project.build.directory}/classes/static/docs</outputDirectory>
+							<outputDirectory>${project.build.directory}/classes/static/docs
+							</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
@@ -338,7 +369,8 @@
 							</dependency>
 						</dependencies>
 						<configuration>
-							<argLine>-javaagent:${settings.localRepository}/org/springframework/spring-instrument/${spring-framework.version}/spring-instrument-${spring-framework.version}.jar</argLine>
+							<argLine>-javaagent:${settings.localRepository}/org/springframework/spring-instrument/${spring-framework.version}/spring-instrument-${spring-framework.version}.jar
+							</argLine>
 						</configuration>
 					</plugin>
 					<plugin>
@@ -356,7 +388,8 @@
 							</dependency>
 						</dependencies>
 						<configuration>
-							<agent>${settings.localRepository}/org/springframework/spring-instrument/${spring-framework.version}/spring-instrument-${spring-framework.version}.jar</agent>
+							<agent>${settings.localRepository}/org/springframework/spring-instrument/${spring-framework.version}/spring-instrument-${spring-framework.version}.jar
+							</agent>
 						</configuration>
 					</plugin>
 
@@ -373,7 +406,8 @@
 				<java.version>1.8</java.version>
 				<maven.compiler.source>1.8</maven.compiler.source>
 				<maven.compiler.target>1.8</maven.compiler.target>
-				<json-doclet.artifactId>spring-auto-restdocs-json-doclet</json-doclet.artifactId>
+				<json-doclet.artifactId>spring-auto-restdocs-json-doclet
+				</json-doclet.artifactId>
 			</properties>
 		</profile>
 		<profile>
@@ -385,7 +419,8 @@
 				<java.version>9</java.version>
 				<maven.compiler.source>9</maven.compiler.source>
 				<maven.compiler.target>9</maven.compiler.target>
-				<json-doclet.artifactId>spring-auto-restdocs-json-doclet-jdk9</json-doclet.artifactId>
+				<json-doclet.artifactId>spring-auto-restdocs-json-doclet-jdk9
+				</json-doclet.artifactId>
 			</properties>
 		</profile>
 		<profile>
@@ -397,7 +432,8 @@
 				<java.version>10</java.version>
 				<maven.compiler.source>10</maven.compiler.source>
 				<maven.compiler.target>10</maven.compiler.target>
-				<json-doclet.artifactId>spring-auto-restdocs-json-doclet-jdk9</json-doclet.artifactId>
+				<json-doclet.artifactId>spring-auto-restdocs-json-doclet-jdk9
+				</json-doclet.artifactId>
 			</properties>
 		</profile>
 		<profile>
@@ -409,8 +445,93 @@
 				<java.version>11</java.version>
 				<maven.compiler.source>11</maven.compiler.source>
 				<maven.compiler.target>11</maven.compiler.target>
-				<json-doclet.artifactId>spring-auto-restdocs-json-doclet-jdk9</json-doclet.artifactId>
+				<json-doclet.artifactId>spring-auto-restdocs-json-doclet-jdk9
+				</json-doclet.artifactId>
 			</properties>
+		</profile>
+
+		<profile>
+			<id>code-analysis</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-site-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-project-info-reports-plugin</artifactId>
+						<version>3.0.0</version>
+					</plugin>
+
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>${jacoco.version}</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>jacoco-report</id>
+								<phase>test</phase>
+								<goals>
+									<goal>report</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>code-analysis-strict</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>${jacoco.version}</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>jacoco-report</id>
+								<phase>test</phase>
+								<goals>
+									<goal>report</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>jacoco-check</id>
+								<goals>
+									<goal>check</goal>
+								</goals>
+								<configuration>
+									<rules>
+										<rule>
+											<element>PACKAGE</element>
+											<limits>
+												<limit>
+													<counter>LINE</counter>
+													<value>COVEREDRATIO</value>
+													<minimum>0.9</minimum>
+												</limit>
+											</limits>
+										</rule>
+									</rules>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 	</profiles>
 </project>
