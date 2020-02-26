@@ -1,14 +1,6 @@
 package com.test.restapi.docs;
 
-import static capital.scalable.restdocs.jackson.JacksonResultHandlers.prepareJackson;
 import static capital.scalable.restdocs.misc.AuthorizationSnippet.documentAuthorization;
-import static capital.scalable.restdocs.response.ResponseModifyingPreprocessors.limitJsonArrayLength;
-import static capital.scalable.restdocs.response.ResponseModifyingPreprocessors.replaceBinaryContent;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-//import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -17,7 +9,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Base64;
 
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,19 +26,12 @@ import org.springframework.data.rest.core.mapping.SearchResourceMappings;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
-import org.springframework.restdocs.cli.CliDocumentation;
-import org.springframework.restdocs.http.HttpDocumentation;
-import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
-import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
-import org.springframework.restdocs.operation.preprocess.OperationResponsePreprocessor;
-import org.springframework.restdocs.snippet.Snippet;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -56,13 +40,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import capital.scalable.restdocs.AutoDocumentation;
-import capital.scalable.restdocs.section.SectionBuilder;
-
 @ExtendWith({ RestDocumentationExtension.class, SpringExtension.class })
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(MockMvcDocConfiguration.class)
+@ActiveProfiles("restdocs")
 public abstract class MockMvcBase<T, ID> {
 
 	private static final String DEFAULT_AUTHORIZATION = "Resource is public.";
@@ -202,6 +184,5 @@ public abstract class MockMvcBase<T, ID> {
 		byte[] encoded = Base64.getEncoder().encode((username + ":" + password).getBytes());
 		return new String(encoded);
 	}
-
 
 }
