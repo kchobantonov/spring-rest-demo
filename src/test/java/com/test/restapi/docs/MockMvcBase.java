@@ -33,7 +33,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -46,11 +45,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Import(MockMvcDocConfiguration.class)
 @ActiveProfiles("restdocs")
 public abstract class MockMvcBase<T, ID> {
-
-	private static final String DEFAULT_AUTHORIZATION = "Resource is public.";
-
-	@Autowired
-	private WebApplicationContext context;
 
 	@Autowired
 	protected ObjectMapper objectMapper;
