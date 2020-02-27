@@ -1,6 +1,8 @@
 package com.test.restapi.config;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +26,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.web.servlet.handler.MappedInterceptor;
+
+import com.test.restapi.validation.HttpMethodValidationGroup;
 
 @Configuration
 public class ValidationConfiguration implements RepositoryRestConfigurer, WebMvcConfigurer {
@@ -47,10 +52,16 @@ public class ValidationConfiguration implements RepositoryRestConfigurer, WebMvc
 		return result;
 	}
 
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(new ExposeHttpMethodHandlerInterceptor());
+	@Bean
+	public MappedInterceptor exposeHttpMethodHandlerInterceptor() {
+		return new MappedInterceptor(null, new ExposeHttpMethodHandlerInterceptor());
 	}
+
+	// @Override
+	/*
+	 * public void addInterceptors(InterceptorRegistry registry) {
+	 * registry.addInterceptor(new ExposeHttpMethodHandlerInterceptor()); }
+	 */
 
 	private class RestValidationGroupsLocalValidatorFactoryBean extends LocalValidatorFactoryBean {
 		@Override
@@ -80,7 +91,12 @@ public class ValidationConfiguration implements RepositoryRestConfigurer, WebMvc
 
 		public <T> Set<ConstraintViolation<T>> validate(T object, Class<?>... groups) {
 			HttpMethod method = ExposeHttpMethodHandlerInterceptor.CURRENT_METHOD.get();
-			//TODO change groups
+			if (groups != null) {
+				groups = Arrays.copyOf(groups, groups.length + 1);
+				groups[groups.length - 1] = toHttpValidationGroup(method);
+			} else {
+				groups = new Class[] { toHttpValidationGroup(method) };
+			}
 			return delegate.validate(object, groups);
 		}
 
@@ -106,6 +122,29 @@ public class ValidationConfiguration implements RepositoryRestConfigurer, WebMvc
 			return delegate.forExecutables();
 		}
 
+	}
+
+	private Class<? extends HttpMethodValidationGroup> toHttpValidationGroup(HttpMethod method) {
+		switch (method) {
+		case GET:
+			return HttpMethodValidationGroup.GET.class;
+		case HEAD:
+			return HttpMethodValidationGroup.HEAD.class;
+		case POST:
+			return HttpMethodValidationGroup.POST.class;
+		case PUT:
+			return HttpMethodValidationGroup.PUT.class;
+		case PATCH:
+			return HttpMethodValidationGroup.PATCH.class;
+		case DELETE:
+			return HttpMethodValidationGroup.DELETE.class;
+		case OPTIONS:
+			return HttpMethodValidationGroup.OPTIONS.class;
+		case TRACE:
+			return HttpMethodValidationGroup.TRACE.class;
+		default:
+			throw new IllegalArgumentException("Unsupported method " + method);
+		}
 	}
 
 	private static class ExposeHttpMethodHandlerInterceptor extends HandlerInterceptorAdapter {
