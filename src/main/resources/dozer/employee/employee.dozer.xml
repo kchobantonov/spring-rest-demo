@@ -6,7 +6,32 @@
 
 	<mapping>
 		<class-a>com.test.restapi.entity.jpa.employee.Employee</class-a>
-		<class-b>com.test.restapi.entity.dozer.employee.EmployeeResource</class-b>
+		<class-b>com.test.restapi.entity.dozer.employee.LimitedEmployeeResource</class-b>
+		<field>
+			<a>id</a>
+			<b>id</b>
+		</field>
+		<field>
+			<a>gender</a>
+			<b>gender</b>
+		</field>
+		<field>
+			<a>firstName</a>
+			<b>firstName</b>
+		</field>
+		<field>
+			<a>lastName</a>
+			<b>lastName</b>
+		</field>
+		<field>
+			<a>salary</a>
+			<b>salary</b>
+		</field>
+	</mapping>
+
+	<mapping>
+		<class-a>com.test.restapi.entity.jpa.employee.Employee</class-a>
+		<class-b>com.test.restapi.entity.dozer.employee.NotRestrictedEmployeeResource</class-b>
 		<field>
 			<a>id</a>
 			<b>id</b>
@@ -32,5 +57,4 @@
 			<b>manager</b>
 		</field>
 	</mapping>
-
 </mappings>

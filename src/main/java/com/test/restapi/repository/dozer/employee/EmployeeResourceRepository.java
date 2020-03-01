@@ -8,20 +8,24 @@ import javax.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.dozer.annotation.DozerRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import com.test.restapi.entity.dozer.employee.EmployeeResource;
+import com.test.restapi.entity.dozer.employee.NotRestrictedEmployeeResource;
 import com.test.restapi.repository.dozer.ValidatedDozerRepository;
+import com.test.restapi.repository.jpa.employee.EmployeeRepository;
 
 /**
  * REST API endpoint to manage employee resources
  * 
  * @author kchobantonov
  */
-@RepositoryRestResource(collectionResourceRel = "employees", itemResourceRel = "employee", path = "employees")
-public interface EmployeeResourceRepository extends ValidatedDozerRepository<EmployeeResource, Integer> {
+@DozerRepository(adaptedRepositoryClass = EmployeeRepository.class)
+@RepositoryRestResource(collectionResourceRel = "employees", itemResourceRel = "employee", path = "allemployees")
+public interface EmployeeResourceRepository extends ValidatedDozerRepository<NotRestrictedEmployeeResource, Integer> {
 
 	@Query("SELECT e FROM Employee e WHERE e.firstName LIKE :firstName")
 	Page<EmployeeResource> findByFirstNameAndReturnPage(@Param("firstName") String firstName, Pageable pageable);

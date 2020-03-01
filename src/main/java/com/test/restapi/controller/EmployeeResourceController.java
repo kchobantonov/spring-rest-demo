@@ -13,7 +13,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import com.test.restapi.entity.dozer.employee.EmployeeResource;
+import com.test.restapi.entity.dozer.employee.LimitedEmployeeResource;
 
 /**
  * REST API endpoint to manage employee resources
@@ -21,7 +21,7 @@ import com.test.restapi.entity.dozer.employee.EmployeeResource;
  * @author kchobantonov
  */
 @RepositoryRestController
-public class EmployeeResourceController extends ResourceController<EmployeeResource, Integer> {
+public class EmployeeResourceController extends ResourceController<LimitedEmployeeResource, Integer> {
 	
 	@Override
 	public String getIdPathVariableRegex() {
@@ -51,7 +51,7 @@ public class EmployeeResourceController extends ResourceController<EmployeeResou
 	 */
 	@PreAuthorize("isAuthenticated()")
 	@Override
-	public <S extends EmployeeResource> ResponseEntity<EntityModel<S>> getItemResource(@PathVariable("id") Integer id,
+	public <S extends LimitedEmployeeResource> ResponseEntity<EntityModel<S>> getItemResource(@PathVariable("id") Integer id,
 			PersistentEntityResourceAssembler assembler, @RequestHeader HttpHeaders headers)
 			throws HttpRequestMethodNotSupportedException {
 		return super.getItemResource(id, assembler, headers);
